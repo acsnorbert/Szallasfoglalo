@@ -1,42 +1,59 @@
-<div class="login-container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="login-card p-5 rounded-4 shadow-lg">
-      <div class="text-center mb-4">
-        <h1 class="logo">JM-ÁN Szállásfoglaló</h1>
-        <p class="text-gold">Belépés a prémium élményhez</p>
+<div class="login-container">
+    <div class="login-wrapper">
+      <div class="login-header">
+        <h1 class="logo-text">ALMARIS</h1>
       </div>
   
-      <div class="form-floating mb-3">
-        <input type="email" class="form-control" id="email" placeholder="name@example.com" [(ngModel)]="user.email">
-        <label for="email">E-mail cím</label>
-      </div>
-  
-      <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="password" placeholder="Password" [(ngModel)]="user.password">
-        <label for="password">Jelszó</label>
-      </div>
-  
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="rememberme" [(ngModel)]="rememberMe">
-          <label class="form-check-label" for="rememberme">
-            Emlékezz rám
-          </label>
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-input"
+            placeholder="Enter your email"
+            required
+          />
+          <div class="error-message">
+            Please enter a valid email address
+          </div>
         </div>
-        <a routerLink="/lostpass" class="text-decoration-none text-gold">Elfelejtettem a jelszavam</a>
-      </div>
   
-      <div class="d-grid gap-3">
-        <button class="btn btn-gold btn-lg" (click)="login()">
-          Belépés
-        </button>
-        <button class="btn btn-outline-light btn-lg" routerLink="/registration">
-          Regisztráció
-        </button>
-      </div>
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            class="form-input"
+            placeholder="Enter your password"
+            required
+          />
+          <div class="error-message">
+            Password is required
+          </div>
+        </div>
   
-      <div class="text-center mt-4 text-muted small">
-        &copy; 2025 JM-ÁN Szállásfoglaló
+        <div class="form-group checkbox">
+          <input
+            type="checkbox"
+            id="remember"
+            formControlName="remember"
+            class="form-checkbox"
+          />
+          <label for="remember" class="checkbox-label">Remember me</label>
+        </div>
+  
+        <button type="submit" class="submit-button">
+          Sign In
+        </button>
+      </form>
+  
+      <div class="login-footer">
+        <a href="#" class="footer-link">Forgot your password?</a>
+        <span class="divider">•</span>
+        <a href="#" class="footer-link">Register</a>
       </div>
     </div>
   </div>
-  

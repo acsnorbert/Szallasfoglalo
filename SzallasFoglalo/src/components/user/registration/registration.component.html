@@ -1,59 +1,105 @@
-<div class="registration-container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="registration-card p-5 rounded-4 shadow-lg">
-      <div class="text-center mb-4">
-        <h1 class="logo">JM-ÁN Szállásfoglaló</h1>
-        <p class="text-gold">Hozd létre prémium fiókodat</p>
+<div class="register-container">
+    <div class="register-wrapper">
+      <div class="register-header">
+        <h1 class="logo-text">ALMARIS</h1>
+        <p class="subtitle">Create Your Account</p>
       </div>
   
-      <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="name" placeholder="Username" [(ngModel)]="newUser.name">
-        <label for="name">Felhasználónév: <em>*</em></label>
-      </div>
+      <form class="register-form" id="registerForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName" class="form-label">First Name</label>
+            <input
+              type="text"
+              id="firstName"
+              class="form-input"
+              placeholder="Enter your first name"
+              required
+            />
+            <div class="error-message" id="firstNameError"></div>
+          </div>
   
-      <div class="form-floating mb-3">
-        <input type="email" class="form-control" id="email" placeholder="name@example.com" [(ngModel)]="newUser.email">
-        <label for="email">E-mail cím: <em>*</em></label>
-      </div>
+          <div class="form-group">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              class="form-input"
+              placeholder="Enter your last name"
+              required
+            />
+            <div class="error-message" id="lastNameError"></div>
+          </div>
+        </div>
   
-      <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="password" placeholder="Password" [(ngModel)]="newUser.password">
-        <label for="password">Jelszó: <em>*</em></label>
-      </div>
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            class="form-input"
+            placeholder="Enter your email"
+            required
+          />
+          <div class="error-message" id="emailError"></div>
+        </div>
   
-      <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="confirm" placeholder="Confirm password" [(ngModel)]="newUser.confirm">
-        <label for="confirm">Jelszó megerősítése: <em>*</em></label>
-      </div>
+        <div class="form-group">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            class="form-input"
+            placeholder="Enter your phone number"
+          />
+          <div class="error-message" id="phoneError"></div>
+        </div>
   
-      <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="phone" placeholder="Phone" [(ngModel)]="newUser.phone">
-        <label for="phone">Telefonszám:</label>
-      </div>
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            id="password"
+            class="form-input"
+            placeholder="Enter your password (min. 6 characters)"
+            required
+          />
+          <div class="error-message" id="passwordError"></div>
+        </div>
   
-      <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="address" placeholder="Address" [(ngModel)]="newUser.address">
-        <label for="address">Cím:</label>
-      </div>
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">Confirm Password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            class="form-input"
+            placeholder="Confirm your password"
+            required
+          />
+          <div class="error-message" id="confirmPasswordError"></div>
+        </div>
   
-      <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" id="acceptterms" [(ngModel)]="acceptTerms">
-        <label class="form-check-label" for="acceptterms">
-          Elfogadom a regisztrációs szabályzatot <em>*</em>
-        </label>
-      </div>
+        <div class="form-group checkbox">
+          <input
+            type="checkbox"
+            id="terms"
+            class="form-checkbox"
+            required
+          />
+          <label for="terms" class="checkbox-label">
+            I agree to the <a href="#" class="terms-link">Terms and Conditions</a>
+          </label>
+        </div>
   
-      <div class="d-grid gap-3">
-        <button class="btn btn-gold btn-lg" (click)="registration()">
-          <i class="bi bi-person-plus-fill"></i> Regisztráció
+        <div class="error-message" id="termsError"></div>
+  
+        <button type="submit" class="submit-button">
+          Create Account
         </button>
-        <button class="btn btn-outline-light btn-lg" routerLink="/login">
-          <i class="bi bi-box-arrow-in-right"></i> Belépés
-        </button>
-      </div>
+      </form>
   
-      <div class="text-center mt-4 text-muted small">
-        &copy; 2025 JM-ÁN Szállásfoglaló
+      <div class="register-footer">
+        <p class="footer-text">Already have an account? <a href="#" class="footer-link">Sign In</a></p>
       </div>
     </div>
   </div>
-  

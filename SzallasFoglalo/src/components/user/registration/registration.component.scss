@@ -1,81 +1,243 @@
-$gold: #d4af37;
-$black: #0d0d0d;
-$white: #ffffff;
-
-body {
-  font-family: 'Playfair Display', serif;
-  background-color: $black;
-  color: $white;
-}
-
-.registration-container {
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-.registration-card {
-  background-color: $black;
-  border: 2px solid $gold;
-  max-width: 450px;
-  width: 100%;
-  padding: 2rem;
-  text-align: center;
-  transition: transform 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px);
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    
   }
-
-  .logo {
-    font-size: 2rem;
-    font-weight: 700;
-    color: $gold;
-    margin-bottom: 1rem;
+  
+  .register-wrapper {
+    width: 100%;
+    max-width: 500px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 50px 40px;
+    animation: slideIn 0.5s ease-out;
+    margin-top: 5%;
   }
-
-  .text-gold {
-    color: $gold;
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-
-  .form-control {
-    background-color: $black;
-    color: $white;
-    border: 1px solid $gold;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-
+  
+  .register-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .logo-text {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    letter-spacing: 2px;
+    margin: 0 0 8px 0;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+    color: #666666;
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  
+    &.checkbox {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 8px;
+    }
+  }
+  
+  .form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .form-input {
+    padding: 12px 16px;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #1a1a1a;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+  
     &:focus {
       outline: none;
-      border-color: $gold;
+      border-color: #c9a961;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+    }
+  
+    &::placeholder {
+      color: #999999;
+    }
+  
+    &:disabled {
+      background-color: #f0f0f0;
+      color: #999999;
+      cursor: not-allowed;
     }
   }
-
-  .btn-gold {
-    background-color: $gold;
-    color: $black;
-    font-weight: bold;
+  
+  .form-checkbox {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    cursor: pointer;
+    accent-color: #c9a961;
+    border-radius: 2px;
+    margin-top: 2px;
+  }
+  
+  .checkbox-label {
+    font-size: 13px;
+    color: #666666;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1.4;
+  }
+  
+  .terms-link {
+    color: #c9a961;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  
+    &:hover {
+      color: #b8965a;
+      text-decoration: underline;
+    }
+  }
+  
+  .error-message {
+    font-size: 12px;
+    color: #e74c3c;
+    margin-top: -4px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .submit-button {
+    padding: 14px 24px;
+    background: #c9a961;
+    color: #ffffff;
     border: none;
-    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
-
+    transition: all 0.3s ease;
+    margin-top: 12px;
+  
     &:hover {
-      background-color: #b8912e; 
-      color: $white;
+      background: #b8965a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(201, 169, 97, 0.3);
+    }
+  
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(201, 169, 97, 0.2);
+    }
+  
+    &:disabled {
+      background: #d4d4d4;
+      cursor: not-allowed;
     }
   }
-
-  .btn-outline-light {
-    border: 1px solid $gold;
-    color: $gold;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-
+  
+  .register-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e8e8e8;
+    font-size: 13px;
+  }
+  
+  .footer-text {
+    margin: 0;
+    color: #666666;
+  }
+  
+  .footer-link {
+    color: #c9a961;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    margin-left: 4px;
+  
     &:hover {
-      background-color: $gold;
-      color: $black;
+      color: #b8965a;
+      text-decoration: underline;
     }
   }
-}
+  
+  @media (max-width: 600px) {
+    .register-wrapper {
+      max-width: 100%;
+      padding: 40px 24px;
+    }
+  
+    .logo-text {
+      font-size: 24px;
+    }
+  
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  
+    .register-form {
+      gap: 18px;
+    }
+  
+    .submit-button {
+      padding: 12px 20px;
+      font-size: 13px;
+    }
+  }
