@@ -1,8 +1,8 @@
-<div class="container min-vh-100 d-flex justify-content-center align-items-center bg-light">
-    <div class="card shadow-lg p-4 rounded-4" style="max-width: 400px; width: 100%;">
+<div class="login-container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="login-card p-5 rounded-4 shadow-lg">
       <div class="text-center mb-4">
-        <h2 class="fw-bold">Belépés</h2>
-        <p class="text-muted">Add meg az e-mail címed és jelszavad</p>
+        <h1 class="logo">JM-ÁN Szállásfoglaló</h1>
+        <p class="text-gold">Belépés a prémium élményhez</p>
       </div>
   
       <div class="form-floating mb-3">
@@ -17,55 +17,26 @@
   
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="" id="rememberme" [(ngModel)]="rememberMe">
+          <input class="form-check-input" type="checkbox" id="rememberme" [(ngModel)]="rememberMe">
           <label class="form-check-label" for="rememberme">
             Emlékezz rám
           </label>
         </div>
-        <a href="" routerLink="/lostpass" class="text-decoration-none">Elfelejtettem a jelszavam</a>
+        <a routerLink="/lostpass" class="text-decoration-none text-gold">Elfelejtettem a jelszavam</a>
       </div>
   
-      <div class="d-grid gap-2">
-        <button class="btn btn-primary btn-lg" (click)="login()">
-          <i class="bi bi-box-arrow-in-right"></i> Belépés
+      <div class="d-grid gap-3">
+        <button class="btn btn-gold btn-lg" (click)="login()">
+          Belépés
         </button>
-        <button class="btn btn-outline-secondary btn-lg" routerLink="/registration">
-          <i class="bi bi-person-plus-fill"></i> Regisztráció
+        <button class="btn btn-outline-light btn-lg" routerLink="/registration">
+          Regisztráció
         </button>
       </div>
   
-      <div class="text-center mt-3 text-muted">
-        &copy; 2025 YourCompany
+      <div class="text-center mt-4 text-muted small">
+        &copy; 2025 JM-ÁN Szállásfoglaló
       </div>
     </div>
   </div>
-  
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-  
-    .card {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-  
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    }
-  
-    .btn-primary {
-      background: linear-gradient(90deg, #4b6cb7, #182848);
-      border: none;
-    }
-  
-    .btn-primary:hover {
-      background: linear-gradient(90deg, #182848, #4b6cb7);
-    }
-  
-    .form-control:focus {
-      border-color: #4b6cb7;
-      box-shadow: 0 0 0 0.2rem rgba(75, 108, 183, 0.25);
-    }
-  </style>
   

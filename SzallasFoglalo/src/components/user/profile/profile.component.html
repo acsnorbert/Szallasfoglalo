@@ -1,1 +1,42 @@
-<p>profile works!</p>
+<div class="profile-container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="profile-card p-5 rounded-4 shadow-lg">
+      <div class="text-center mb-4">
+        <h1 class="logo">JM-ÁN Szállásfoglaló</h1>
+        <p class="text-gold">Profil beállítások</p>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="username" placeholder="Username" [(ngModel)]="user.name">
+        <label for="username">Felhasználónév:</label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="currentPassword" placeholder="Current Password" [(ngModel)]="user.currentPassword">
+        <label for="currentPassword">Jelenlegi jelszó:</label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="newPassword" placeholder="New Password" [(ngModel)]="user.newPassword">
+        <label for="newPassword">Új jelszó:</label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm New Password" [(ngModel)]="user.confirmPassword">
+        <label for="confirmPassword">Új jelszó megerősítése:</label>
+      </div>
+  
+      <div class="d-grid gap-3">
+        <button class="btn btn-gold btn-lg" (click)="updateProfile()">
+          Mentés
+        </button>
+        <button class="btn btn-outline-light btn-lg" routerLink="/login">
+          Kijelentkezés
+        </button>
+      </div>
+  
+      <div class="text-center mt-4 text-muted small">
+        &copy; JM-ÁN Szállásfoglaló
+      </div>
+    </div>
+  </div>
+  

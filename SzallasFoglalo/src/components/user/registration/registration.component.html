@@ -1,1 +1,59 @@
-<p>registration works!</p>
+<div class="registration-container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="registration-card p-5 rounded-4 shadow-lg">
+      <div class="text-center mb-4">
+        <h1 class="logo">JM-ÁN Szállásfoglaló</h1>
+        <p class="text-gold">Hozd létre prémium fiókodat</p>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="name" placeholder="Username" [(ngModel)]="newUser.name">
+        <label for="name">Felhasználónév: <em>*</em></label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="email" class="form-control" id="email" placeholder="name@example.com" [(ngModel)]="newUser.email">
+        <label for="email">E-mail cím: <em>*</em></label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="password" placeholder="Password" [(ngModel)]="newUser.password">
+        <label for="password">Jelszó: <em>*</em></label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="confirm" placeholder="Confirm password" [(ngModel)]="newUser.confirm">
+        <label for="confirm">Jelszó megerősítése: <em>*</em></label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="phone" placeholder="Phone" [(ngModel)]="newUser.phone">
+        <label for="phone">Telefonszám:</label>
+      </div>
+  
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="address" placeholder="Address" [(ngModel)]="newUser.address">
+        <label for="address">Cím:</label>
+      </div>
+  
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="acceptterms" [(ngModel)]="acceptTerms">
+        <label class="form-check-label" for="acceptterms">
+          Elfogadom a regisztrációs szabályzatot <em>*</em>
+        </label>
+      </div>
+  
+      <div class="d-grid gap-3">
+        <button class="btn btn-gold btn-lg" (click)="registration()">
+          <i class="bi bi-person-plus-fill"></i> Regisztráció
+        </button>
+        <button class="btn btn-outline-light btn-lg" routerLink="/login">
+          <i class="bi bi-box-arrow-in-right"></i> Belépés
+        </button>
+      </div>
+  
+      <div class="text-center mt-4 text-muted small">
+        &copy; 2025 JM-ÁN Szállásfoglaló
+      </div>
+    </div>
+  </div>
+  
