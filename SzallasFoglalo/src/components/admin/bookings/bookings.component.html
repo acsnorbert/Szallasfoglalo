@@ -1,1 +1,295 @@
-<p>bookings works!</p>
+<div class="management-container">
+    <div class="page-header">
+      <div class="header-left">
+        <h2 class="section-title">Foglalások kezelése</h2>
+        <p class="section-subtitle">{{ bookings.length }} foglalás összesen</p>
+      </div>
+      <button class="btn btn-primary" (click)="openCreateBookingModal()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Manuális foglalás
+      </button>
+    </div>
+  
+    <div class="filters-card">
+      <div class="filter-group">
+        <input 
+          type="text" 
+          class="filter-input" 
+          placeholder="Keresés név vagy azonosító alapján..."
+          [(ngModel)]="searchTerm"
+          (input)="filterBookings()">
+      </div>
+      <div class="filter-group">
+        <select class="filter-select" [(ngModel)]="statusFilter" (change)="filterBookings()">
+          <option value="all">Összes státusz</option>
+          <option value="pending">Függőben</option>
+          <option value="confirmed">Megerősítve</option>
+          <option value="cancelled">Törölve</option>
+          <option value="completed">Befejezett</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <select class="filter-select" [(ngModel)]="accommodationFilter" (change)="filterBookings()">
+          <option value="all">Összes szállás</option>
+          <option value="deluxe">Deluxe Suite</option>
+          <option value="executive">Executive Room</option>
+          <option value="family">Family Suite</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <input 
+          type="date" 
+          class="filter-input" 
+          [(ngModel)]="dateFilter"
+          (change)="filterBookings()">
+      </div>
+    </div>
+  
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Azonosító</th>
+              <th>Szállás</th>
+              <th>Vendég</th>
+              <th>Dátum</th>
+              <th>Éjszakák</th>
+              <th>Vendégek</th>
+              <th>Összeg</th>
+              <th>Státusz</th>
+              <th>Műveletek</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let booking of filteredBookings">
+              <td class="booking-id">#{{ booking.id }}</td>
+              <td class="accommodation-name">{{ booking.accommodationName }}</td>
+              <td>
+                <div class="guest-info">
+                  <div class="guest-name">{{ booking.guestName }}</div>
+                  <div class="guest-contact">{{ booking.guestEmail }}</div>
+                </div>
+              </td>
+              <td>
+                <div class="date-range">
+                  <div>{{ booking.checkIn | date:'yyyy.MM.dd' }}</div>
+                  <div class="date-separator">→</div>
+                  <div>{{ booking.checkOut | date:'yyyy.MM.dd' }}</div>
+                </div>
+              </td>
+              <td class="text-center">{{ booking.nights }}</td>
+              <td class="text-center">{{ booking.guests }}</td>
+              <td class="price-cell">{{ booking.totalPrice | number:'1.0-0' }} Ft</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + booking.status">
+                  {{ getStatusText(booking.status) }}
+                </span>
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button class="icon-btn-small" (click)="viewBooking(booking)" title="Megtekintés">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                  <button class="icon-btn-small" (click)="editBooking(booking)" title="Szerkesztés">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button class="icon-btn-small danger" (click)="deleteBooking(booking)" title="Törlés">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <div class="empty-state" *ngIf="filteredBookings.length === 0">
+        <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <h3>Nincs megjeleníthető foglalás</h3>
+        <p>Próbálj meg más szűrőfeltételeket használni.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editMode ? 'Foglalás szerkesztése' : 'Új foglalás rögzítése' }}</h3>
+        <button class="close-btn" (click)="closeModal()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+  
+      <div class="modal-body">
+        <form [formGroup]="bookingForm" (ngSubmit)="saveBooking()">
+          <div class="form-section">
+            <h4 class="section-subtitle">Szállás információk</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Szállás *</label>
+                <select class="form-control" formControlName="accommodationId">
+                  <option value="">Válassz szállást</option>
+                  <option value="1">Deluxe Suite</option>
+                  <option value="2">Executive Room</option>
+                  <option value="3">Family Suite</option>
+                </select>
+              </div>
+  
+              <div class="form-group">
+                <label>Vendégek száma *</label>
+                <input type="number" class="form-control" formControlName="guests" min="1" placeholder="2">
+              </div>
+            </div>
+  
+            <div class="form-row">
+              <div class="form-group">
+                <label>Bejelentkezés *</label>
+                <input type="date" class="form-control" formControlName="checkIn">
+              </div>
+  
+              <div class="form-group">
+                <label>Kijelentkezés *</label>
+                <input type="date" class="form-control" formControlName="checkOut">
+              </div>
+            </div>
+          </div>
+  
+          <div class="form-section">
+            <h4 class="section-subtitle">Vendég adatai</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Név *</label>
+                <input type="text" class="form-control" formControlName="guestName" placeholder="Kovács János">
+              </div>
+  
+              <div class="form-group">
+                <label>E-mail cím *</label>
+                <input type="email" class="form-control" formControlName="guestEmail" placeholder="kovacs@example.com">
+              </div>
+            </div>
+  
+            <div class="form-row">
+              <div class="form-group">
+                <label>Telefonszám *</label>
+                <input type="tel" class="form-control" formControlName="guestPhone" placeholder="+36 30 123 4567">
+              </div>
+  
+              <div class="form-group">
+                <label>Státusz *</label>
+                <select class="form-control" formControlName="status">
+                  <option value="pending">Függőben</option>
+                  <option value="confirmed">Megerősítve</option>
+                  <option value="cancelled">Törölve</option>
+                  <option value="completed">Befejezett</option>
+                </select>
+              </div>
+            </div>
+          </div>
+  
+          <div class="form-section">
+            <h4 class="section-subtitle">Megjegyzések</h4>
+            <div class="form-group">
+              <label>Megjegyzés</label>
+              <textarea class="form-control" formControlName="notes" rows="3" 
+                        placeholder="További információk..."></textarea>
+            </div>
+          </div>
+  
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Mégse</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!bookingForm.valid">
+              {{ editMode ? 'Mentés' : 'Létrehozás' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" *ngIf="showViewModal" (click)="closeViewModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Foglalás részletei - #{{ selectedBooking?.id }}</h3>
+        <button class="close-btn" (click)="closeViewModal()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+  
+      <div class="modal-body" *ngIf="selectedBooking">
+        <div class="booking-details">
+          <div class="detail-section">
+            <h4>Szállás</h4>
+            <p class="detail-value">{{ selectedBooking.accommodationName }}</p>
+          </div>
+  
+          <div class="detail-section">
+            <h4>Vendég</h4>
+            <p class="detail-value">{{ selectedBooking.guestName }}</p>
+            <p class="detail-secondary">{{ selectedBooking.guestEmail }}</p>
+            <p class="detail-secondary">{{ selectedBooking.guestPhone }}</p>
+          </div>
+  
+          <div class="detail-row">
+            <div class="detail-section">
+              <h4>Bejelentkezés</h4>
+              <p class="detail-value">{{ selectedBooking.checkIn | date:'yyyy. MM. dd.' }}</p>
+            </div>
+  
+            <div class="detail-section">
+              <h4>Kijelentkezés</h4>
+              <p class="detail-value">{{ selectedBooking.checkOut | date:'yyyy. MM. dd.' }}</p>
+            </div>
+          </div>
+  
+          <div class="detail-row">
+            <div class="detail-section">
+              <h4>Éjszakák száma</h4>
+              <p class="detail-value">{{ selectedBooking.nights }} éjszaka</p>
+            </div>
+  
+            <div class="detail-section">
+              <h4>Vendégek száma</h4>
+              <p class="detail-value">{{ selectedBooking.guests }} fő</p>
+            </div>
+          </div>
+  
+          <div class="detail-section">
+            <h4>Összeg</h4>
+            <p class="detail-value price-highlight">{{ selectedBooking.totalPrice | number:'1.0-0' }} Ft</p>
+          </div>
+  
+          <div class="detail-section">
+            <h4>Státusz</h4>
+            <span class="status-badge" [class]="'status-' + selectedBooking.status">
+              {{ getStatusText(selectedBooking.status) }}
+            </span>
+          </div>
+  
+          <div class="detail-section" *ngIf="selectedBooking.notes">
+            <h4>Megjegyzések</h4>
+            <p class="detail-value">{{ selectedBooking.notes }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

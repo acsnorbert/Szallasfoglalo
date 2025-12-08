@@ -1,1 +1,238 @@
-<p>users works!</p>
+<div class="management-container">
+    <div class="page-header">
+      <div class="header-left">
+        <h2 class="section-title">Felhasználók kezelése</h2>
+        <p class="section-subtitle">{{ users.length }} felhasználó összesen</p>
+      </div>
+    </div>
+  
+    <div class="filters-card">
+      <div class="filter-group">
+        <input 
+          type="text" 
+          class="filter-input" 
+          placeholder="Keresés név vagy e-mail alapján..."
+          [(ngModel)]="searchTerm"
+          (input)="filterUsers()">
+      </div>
+      <div class="filter-group">
+        <select class="filter-select" [(ngModel)]="roleFilter" (change)="filterUsers()">
+          <option value="all">Összes szerep</option>
+          <option value="admin">Admin</option>
+          <option value="user">User</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <select class="filter-select" [(ngModel)]="statusFilter" (change)="filterUsers()">
+          <option value="all">Összes státusz</option>
+          <option value="active">Aktív</option>
+          <option value="inactive">Inaktív</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Felhasználó</th>
+              <th>E-mail</th>
+              <th>Telefonszám</th>
+              <th>Szerep</th>
+              <th>Regisztráció</th>
+              <th>Foglalások</th>
+              <th>Státusz</th>
+              <th>Műveletek</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers">
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar-small">{{ getInitials(user.name) }}</div>
+                  <span class="user-name">{{ user.name }}</span>
+                </div>
+              </td>
+              <td class="user-email">{{ user.email }}</td>
+              <td>{{ user.phone }}</td>
+              <td>
+                <span class="role-badge" [class]="'role-' + user.role">
+                  {{ getRoleText(user.role) }}
+                </span>
+              </td>
+              <td>{{ user.registeredAt | date:'yyyy.MM.dd' }}</td>
+              <td class="text-center">
+                <span class="booking-count">{{ user.bookingCount }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [class]="user.isActive ? 'status-confirmed' : 'status-cancelled'">
+                  {{ user.isActive ? 'Aktív' : 'Inaktív' }}
+                </span>
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button class="icon-btn-small" (click)="viewUser(user)" title="Megtekintés">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                  <button class="icon-btn-small" (click)="editUser(user)" title="Szerkesztés">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button class="icon-btn-small" 
+                          [class.danger]="user.isActive"
+                          [class.success]="!user.isActive"
+                          (click)="toggleUserStatus(user)" 
+                          [title]="user.isActive ? 'Deaktiválás' : 'Aktiválás'">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" *ngIf="user.isActive">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" *ngIf="!user.isActive">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <div class="empty-state" *ngIf="filteredUsers.length === 0">
+        <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        <h3>Nincs megjeleníthető felhasználó</h3>
+        <p>Próbálj meg más szűrőfeltételeket használni.</p>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="modal-overlay" *ngIf="showViewModal" (click)="closeViewModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Felhasználó részletei</h3>
+        <button class="close-btn" (click)="closeViewModal()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+  
+      <div class="modal-body" *ngIf="selectedUser">
+        <div class="user-profile">
+          <div class="user-avatar-large">{{ getInitials(selectedUser.name) }}</div>
+          <h3 class="user-profile-name">{{ selectedUser.name }}</h3>
+          <span class="role-badge" [class]="'role-' + selectedUser.role">
+            {{ getRoleText(selectedUser.role) }}
+          </span>
+        </div>
+  
+        <div class="user-details">
+          <div class="detail-section">
+            <h4>E-mail cím</h4>
+            <p class="detail-value">{{ selectedUser.email }}</p>
+          </div>
+  
+          <div class="detail-section">
+            <h4>Telefonszám</h4>
+            <p class="detail-value">{{ selectedUser.phone }}</p>
+          </div>
+  
+          <div class="detail-row">
+            <div class="detail-section">
+              <h4>Regisztráció dátuma</h4>
+              <p class="detail-value">{{ selectedUser.registeredAt | date:'yyyy. MM. dd.' }}</p>
+            </div>
+  
+            <div class="detail-section">
+              <h4>Foglalások száma</h4>
+              <p class="detail-value">{{ selectedUser.bookingCount }} db</p>
+            </div>
+          </div>
+  
+          <div class="detail-section">
+            <h4>Státusz</h4>
+            <span class="status-badge" [class]="selectedUser.isActive ? 'status-confirmed' : 'status-cancelled'">
+              {{ selectedUser.isActive ? 'Aktív' : 'Inaktív' }}
+            </span>
+          </div>
+  
+          <div class="detail-section" *ngIf="selectedUser.notes">
+            <h4>Megjegyzések</h4>
+            <p class="detail-value">{{ selectedUser.notes }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Felhasználó szerkesztése</h3>
+        <button class="close-btn" (click)="closeEditModal()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+  
+      <div class="modal-body">
+        <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+          <div class="form-group">
+            <label>Név *</label>
+            <input type="text" class="form-control" formControlName="name" placeholder="Kovács János">
+          </div>
+  
+          <div class="form-group">
+            <label>E-mail cím *</label>
+            <input type="email" class="form-control" formControlName="email" placeholder="kovacs@example.com">
+          </div>
+  
+          <div class="form-group">
+            <label>Telefonszám *</label>
+            <input type="tel" class="form-control" formControlName="phone" placeholder="+36 30 123 4567">
+          </div>
+  
+          <div class="form-group">
+            <label>Szerep *</label>
+            <select class="form-control" formControlName="role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label>Megjegyzések</label>
+            <textarea class="form-control" formControlName="notes" rows="3" 
+                      placeholder="További információk..."></textarea>
+          </div>
+  
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="isActive">
+              <span>Aktív felhasználó</span>
+            </label>
+          </div>
+  
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Mégse</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!userForm.valid">Mentés</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
