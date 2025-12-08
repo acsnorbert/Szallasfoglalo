@@ -9,7 +9,11 @@ body {
 }
 
 .registration-container {
-  background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(15,15,15,0.9));
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 .registration-card {
@@ -17,18 +21,19 @@ body {
   border: 2px solid $gold;
   max-width: 450px;
   width: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 2rem;
+  text-align: center;
+  transition: transform 0.3s ease;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 0 30px rgba($gold, 0.7);
+    transform: translateY(-5px);
   }
 
   .logo {
-    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
     font-weight: 700;
-    font-size: 2.5rem;
     color: $gold;
+    margin-bottom: 1rem;
   }
 
   .text-gold {
@@ -39,12 +44,12 @@ body {
     background-color: $black;
     color: $white;
     border: 1px solid $gold;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
 
     &:focus {
+      outline: none;
       border-color: $gold;
-      box-shadow: 0 0 0 0.2rem rgba($gold, 0.3);
-      background-color: $black;
-      color: $white;
     }
   }
 
@@ -53,16 +58,20 @@ body {
     color: $black;
     font-weight: bold;
     border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
 
     &:hover {
-      background-color: darken($gold, 10%);
+      background-color: #b8912e; 
       color: $white;
     }
   }
 
   .btn-outline-light {
-    border-color: $gold;
+    border: 1px solid $gold;
     color: $gold;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
 
     &:hover {
       background-color: $gold;
