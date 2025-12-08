@@ -1,28 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
-// Variables
-$primary-color: #D4AF37;
-$secondary-color: #1a1a1a;
-$text-light: #f5f5f5;
-$text-dark: #333;
-$gray-light: #f9fafb;
-$gray-medium: #6b7280;
-
-// Typography
-$font-heading: 'Playfair Display', serif;
-$font-body: 'Inter', sans-serif;
-
-// Mixins
-@mixin glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-@mixin transition($property: all) {
-  transition: $property 0.3s ease;
-}
-
 // Navigation
 .nav-glass {
   position: fixed;
@@ -48,11 +25,11 @@ $font-body: 'Inter', sans-serif;
 }
 
 .logo {
-  color: $text-light;
+  color: #f5f5f5;
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  font-family: $font-heading;
+  font-family: 'Playfair Display', serif;
 }
 
 .nav-links {
@@ -65,12 +42,12 @@ $font-body: 'Inter', sans-serif;
 }
 
 .nav-link {
-  color: $text-light;
+  color: #f5f5f5;
   cursor: pointer;
-  @include transition(color);
+  transition: color 0.3s ease;
 
   &:hover {
-    color: $primary-color;
+    color: #D4AF37;
   }
 }
 
@@ -78,7 +55,7 @@ $font-body: 'Inter', sans-serif;
   display: block;
   background: none;
   border: none;
-  color: $text-light;
+  color: #f5f5f5;
   cursor: pointer;
 
   @media (min-width: 768px) {
@@ -94,7 +71,7 @@ $font-body: 'Inter', sans-serif;
 .mobile-menu {
   max-height: 0;
   overflow: hidden;
-  @include transition(max-height);
+  transition: max-height 0.3s ease;
 
   &.open {
     max-height: 300px;
@@ -104,13 +81,13 @@ $font-body: 'Inter', sans-serif;
 
 .mobile-link {
   display: block;
-  color: $text-light;
+  color: #f5f5f5;
   padding: 0.75rem 0;
   cursor: pointer;
-  @include transition(color);
+  transition: color 0.3s ease;
 
   &:hover {
-    color: $primary-color;
+    color: #D4AF37;
   }
 }
 
@@ -134,7 +111,9 @@ $font-body: 'Inter', sans-serif;
 }
 
 .glass-circle {
-  @include glass-effect;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   width: 90%;
   max-width: 500px;
@@ -152,17 +131,17 @@ $font-body: 'Inter', sans-serif;
 
 .hero-content {
   text-align: center;
-  color: $text-light;
+  color: #f5f5f5;
 }
 
 .stars {
-  color: $primary-color;
+  color: #D4AF37;
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
 
 .hero-title {
-  font-family: $font-heading;
+  font-family: 'Playfair Display', serif;
   font-size: clamp(1.75rem, 4vw, 3rem);
   font-weight: 700;
   margin-bottom: 1rem;
@@ -178,13 +157,13 @@ $font-body: 'Inter', sans-serif;
 
 .btn-primary {
   background: #b8860b;
-  color: $text-light;
+  color: #f5f5f5;
   padding: 0.875rem 2rem;
   border: none;
   border-radius: 0.375rem;
   font-weight: 600;
   cursor: pointer;
-  @include transition(background);
+  transition: background 0.3s ease;
 
   &:hover {
     background: #9a7209;
@@ -195,7 +174,7 @@ $font-body: 'Inter', sans-serif;
   position: absolute;
   bottom: 2rem;
   right: 2rem;
-  color: $text-light;
+  color: #f5f5f5;
   font-size: 0.875rem;
 }
 
@@ -211,14 +190,14 @@ $font-body: 'Inter', sans-serif;
 }
 
 .section-title {
-  font-family: $font-heading;
+  font-family: 'Playfair Display', serif;
   font-size: clamp(2rem, 4vw, 2.5rem);
-  color: $text-dark;
+  color: #333;
   margin-bottom: 1rem;
 }
 
 .section-subtitle {
-  color: $gray-medium;
+  color: #6b7280;
   font-size: 1rem;
 }
 
@@ -231,9 +210,9 @@ $font-body: 'Inter', sans-serif;
 .feature-card {
   text-align: center;
   padding: 2rem;
-  background: $gray-light;
+  background: #f9fafb;
   border-radius: 0.5rem;
-  @include transition(transform);
+  transition: transform 0.3s ease;
 
   &:hover {
     transform: translateY(-0.5rem);
@@ -246,22 +225,22 @@ $font-body: 'Inter', sans-serif;
 }
 
 .feature-title {
-  font-family: $font-heading;
+  font-family: 'Playfair Display', serif;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: $text-dark;
+  color: #333;
 }
 
 .feature-text {
-  color: $gray-medium;
+  color: #6b7280;
   line-height: 1.6;
 }
 
 // Accommodations Section
 .accommodations-section {
   padding: 5rem 0;
-  background: $gray-light;
+  background: #f9fafb;
 }
 
 .rooms-grid {
@@ -275,7 +254,7 @@ $font-body: 'Inter', sans-serif;
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  @include transition(transform);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
     transform: translateY(-0.5rem);
@@ -301,19 +280,19 @@ $font-body: 'Inter', sans-serif;
 }
 
 .room-title {
-  font-family: $font-heading;
+  font-family: 'Playfair Display', serif;
   font-size: 1.25rem;
   font-weight: 600;
-  color: $text-dark;
+  color: #333;
 }
 
 .room-stars {
-  color: $primary-color;
+  color: #D4AF37;
   font-size: 0.875rem;
 }
 
 .room-description {
-  color: $gray-medium;
+  color: #6b7280;
   margin-bottom: 1rem;
   line-height: 1.6;
 }
@@ -332,31 +311,31 @@ $font-body: 'Inter', sans-serif;
 }
 
 .price-period {
-  color: $gray-medium;
+  color: #6b7280;
   font-size: 0.875rem;
 }
 
 .btn-secondary {
   width: 100%;
-  background: $secondary-color;
-  color: $text-light;
+  background: #1a1a1a;
+  color: #f5f5f5;
   padding: 0.75rem;
   border: none;
   border-radius: 0.375rem;
   font-weight: 500;
   cursor: pointer;
-  @include transition(background);
+  transition: background 0.3s ease;
 
   &:hover {
-    background: lighten($secondary-color, 10%);
+    background: #2d2d2d;
   }
 }
 
 // CTA Section
 .cta-section {
   padding: 5rem 0;
-  background: $secondary-color;
-  color: $text-light;
+  background: #1a1a1a;
+  color: #f5f5f5;
 }
 
 .cta-content {
@@ -366,7 +345,7 @@ $font-body: 'Inter', sans-serif;
 }
 
 .cta-title {
-  font-family: $font-heading;
+  font-family: 'Playfair Display', serif;
   font-size: clamp(2rem, 4vw, 2.5rem);
   margin-bottom: 1.5rem;
 }
@@ -379,25 +358,24 @@ $font-body: 'Inter', sans-serif;
 
 .btn-cta {
   background: #b8860b;
-  color: $text-light;
+  color: #f5f5f5;
   padding: 1rem 2.5rem;
   border: none;
   border-radius: 0.375rem;
   font-weight: 600;
   font-size: 1.125rem;
   cursor: pointer;
-  @include transition(background);
+  transition: background 0.3s ease;
 
   &:hover {
     background: #9a7209;
   }
 }
 
-
 // Footer
 .footer {
   background: #111;
-  color: $gray-medium;
+  color: #6b7280;
   padding: 3rem 0;
 }
 
@@ -410,13 +388,13 @@ $font-body: 'Inter', sans-serif;
 
 .footer-column {
   h3, h4 {
-    color: $text-light;
+    color: #f5f5f5;
     margin-bottom: 1rem;
   }
 }
 
 .footer-title {
-  font-family: $font-heading;
+  font-family: 'Playfair Display', serif;
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -443,12 +421,12 @@ $font-body: 'Inter', sans-serif;
     font-size: 0.875rem;
 
     a {
-      color: $gray-medium;
+      color: #6b7280;
       cursor: pointer;
-      @include transition(color);
+      transition: color 0.3s ease;
 
       &:hover {
-        color: $primary-color;
+        color: #D4AF37;
       }
     }
   }
