@@ -1,72 +1,102 @@
-$gold: #d4af37;
-$black: #0d0d0d;
-$white: #ffffff;
-
+// ================================
+// Alap body
+// ================================
 body {
-  font-family: 'Playfair Display', serif;
-  background-color: $black;
-  color: $white;
-}
-
-.profile-container {
-  background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(15,15,15,0.9));
-}
-
-.profile-card {
-  background-color: $black;
-  border: 2px solid $gold;
-  max-width: 450px;
-  width: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 0 30px rgba($gold, 0.7);
-  }
-
-  .logo {
     font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: 2.5rem;
-    color: $gold;
+    background-color: #0d0d0d;
+    color: #ffffff;
   }
-
-  .text-gold {
-    color: $gold;
+  
+  // ================================
+  // Konténer
+  // ================================
+  .profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9));
   }
-
-  .form-control {
-    background-color: $black;
-    color: $white;
-    border: 1px solid $gold;
-
-    &:focus {
-      border-color: $gold;
-      box-shadow: 0 0 0 0.2rem rgba($gold, 0.3);
-      background-color: $black;
-      color: $white;
-    }
-  }
-
-  .btn-gold {
-    background-color: $gold;
-    color: $black;
-    font-weight: bold;
-    border: none;
-
+  
+  // ================================
+  // Kártya
+  // ================================
+  .profile-card {
+    background-color: #0d0d0d;
+    border: 2px solid #d4af37;
+    max-width: 450px;
+    width: 100%;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(212,175,55,0.7);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
     &:hover {
-      background-color: darken($gold, 10%);
-      color: $white;
+      transform: translateY(-5px);
+      box-shadow: 0 0 30px rgba(212,175,55,0.8);
+    }
+  
+    // ================================
+    // Logo és szövegek
+    // ================================
+    .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #d4af37;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+  
+    .text-gold {
+      color: #d4af37;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+  
+    // ================================
+    // Form mezők
+    // ================================
+    .form-control {
+      background-color: #0d0d0d;
+      color: #ffffff;
+      border: 1px solid #d4af37;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+  
+      &:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 0 0.2rem rgba(212,175,55,0.3);
+        outline: none;
+        background-color: #0d0d0d;
+        color: #ffffff;
+      }
+    }
+  
+    // ================================
+    // Gombok
+    // ================================
+    .btn-gold {
+      background-color: #d4af37;
+      color: #0d0d0d;
+      border: none;
+      font-weight: bold;
+      transition: opacity 0.2s ease;
+  
+      &:hover {
+        opacity: 0.85;
+        color: #0d0d0d;
+      }
+    }
+  
+    .btn-outline-light {
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      transition: all 0.2s ease;
+  
+      &:hover {
+        background-color: #d4af37;
+        color: #0d0d0d;
+      }
     }
   }
-
-  .btn-outline-light {
-    border-color: $gold;
-    color: $gold;
-
-    &:hover {
-      background-color: $gold;
-      color: $black;
-    }
-  }
-}
+  
