@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almaris - Luxus Szállások</title>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="nav-glass fixed w-full z-50 py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="text-white text-2xl font-bold tracking-wider">ALMARIS</div>
+            <div class="hidden md:flex space-x-8 text-white">
+                <a href="#home" class="hover:text-yellow-400 transition">Home</a>
+                <a href="#rooms" class="hover:text-yellow-400 transition">Rooms</a>
+                <a href="#reservation" class="hover:text-yellow-400 transition">Reservation</a>
+                <a href="#pages" class="hover:text-yellow-400 transition">Pages</a>
+                <a href="#contact" class="hover:text-yellow-400 transition">Contact</a>
+            </div>
+            <button class="md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg flex items-center justify-center relative">
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="glass-effect rounded-full w-96 h-96 flex items-center justify-center p-12">
+                <div class="text-center text-white">
+                    <div class="flex justify-center mb-4">
+                        <span class="star text-2xl">★★★★★</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Experience Hospitality Like Never Before</h1>
+                    <p class="text-gray-200 mb-6 text-sm">Discover the perfect blend of luxury, comfort, and convenience at Almaris. Nestled in the heart of Brooklyn, our hotel is your gateway to an unforgettable getaway.</p>
+                    <button class="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-md font-semibold transition">
+                        DISCOVER ROOMS
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-8 right-8 text-white text-sm">2 / 2</div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Miért válassz minket?</h2>
+                <p class="text-gray-600">Fedezd fel szolgáltatásainkat</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-8 hover-lift bg-gray-50 rounded-lg">
+                    <div class="text-5xl mb-4">🏨</div>
+                    <h3 class="text-xl font-bold mb-3">Luxus Szállások</h3>
+                    <p class="text-gray-600">Válassz prémium szállásaink közül, amelyek tökéletesen illeszkednek igényeidhez</p>
+                </div>
+                <div class="text-center p-8 hover-lift bg-gray-50 rounded-lg">
+                    <div class="text-5xl mb-4">📅</div>
+                    <h3 class="text-xl font-bold mb-3">Egyszerű Foglalás</h3>
+                    <p class="text-gray-600">Intuitív foglalási rendszer valós idejű naptárral és azonnali visszaigazolással</p>
+                </div>
+                <div class="text-center p-8 hover-lift bg-gray-50 rounded-lg">
+                    <div class="text-5xl mb-4">💎</div>
+                    <h3 class="text-xl font-bold mb-3">Kiváló Ár-Érték</h3>
+                    <p class="text-gray-600">Átlátható árazás, nincs rejtett költség, garantált legjobb árak</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Accommodations -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Kiemelt Szállásaink</h2>
+                <p class="text-gray-600">Fedezd fel legnépszerűbb ajánlatainkat</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Room 1 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800" alt="Luxury Suite" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold">Deluxe Suite</h3>
+                            <span class="star">★★★★★</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Tágas apartman panorámás kilátással és modern berendezéssel</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-yellow-600">45.000 Ft</span>
+                            <span class="text-gray-500 text-sm">/éj/fő</span>
+                        </div>
+                        <button class="w-full mt-4 bg-gray-800 hover:bg-gray-900 text-white py-2 rounded-md transition">
+                            Foglalás
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Room 2 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift">
+                    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=800" alt="Executive Room" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold">Executive Room</h3>
+                            <span class="star">★★★★★</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Elegáns szoba üzleti utazóknak, minden kényelemmel</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-yellow-600">32.000 Ft</span>
+                            <span class="text-gray-500 text-sm">/éj/fő</span>
+                        </div>
+                        <button class="w-full mt-4 bg-gray-800 hover:bg-gray-900 text-white py-2 rounded-md transition">
+                            Foglalás
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Room 3 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift">
+                    <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=800" alt="Family Suite" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold">Family Suite</h3>
+                            <span class="star">★★★★★</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Ideális családoknak, akár 6 fő részére kényelmesen</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-yellow-600">28.000 Ft</span>
+                            <span class="text-gray-500 text-sm">/éj/fő</span>
+                        </div>
+                        <button class="w-full mt-4 bg-gray-800 hover:bg-gray-900 text-white py-2 rounded-md transition">
+                            Foglalás
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gray-800 text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-6">Készen állsz az életre szóló élményre?</h2>
+            <p class="text-gray-300 mb-8 max-w-2xl mx-auto">Foglalj most, és élvezd az exkluzív kedvezményeinket. Garantáltan felejthetetlen élmény vár!</p>
+            <button class="bg-yellow-600 hover:bg-yellow-700 text-white px-10 py-4 rounded-md font-semibold text-lg transition">
+                FOGLALJ MOST
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    
+</body>
+</html>
