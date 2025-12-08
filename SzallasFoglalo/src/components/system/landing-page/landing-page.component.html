@@ -1,37 +1,4 @@
-<!-- Navigation -->
-<nav class="nav-glass">
-    <div class="container">
-      <div class="nav-content">
-        <div class="logo">ALMARIS</div>
-        
-        <!-- Desktop Navigation -->
-        <div class="nav-links">
-          <a class="nav-link" (click)="scrollTo('home')">Home</a>
-          <a class="nav-link" (click)="scrollTo('rooms')">Rooms</a>
-          <a class="nav-link" (click)="scrollTo('reservation')">Reservation</a>
-          <a class="nav-link" (click)="scrollTo('pages')">Pages</a>
-          <a class="nav-link" (click)="scrollTo('contact')">Contact</a>
-        </div>
-        
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
-          <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Mobile Navigation -->
-      <div class="mobile-menu" [class.open]="isMobileMenuOpen">
-        <a class="mobile-link" (click)="scrollTo('home')">Home</a>
-        <a class="mobile-link" (click)="scrollTo('rooms')">Rooms</a>
-        <a class="mobile-link" (click)="scrollTo('reservation')">Reservation</a>
-        <a class="mobile-link" (click)="scrollTo('pages')">Pages</a>
-        <a class="mobile-link" (click)="scrollTo('contact')">Contact</a>
-      </div>
-    </div>
-  </nav>
-  
+
   <!-- Hero Section -->
   <section id="home" class="hero-section">
     <div class="hero-overlay">
@@ -43,7 +10,7 @@
             Discover the perfect blend of luxury, comfort, and convenience at Almaris. 
             Nestled in the heart of Brooklyn, our hotel is your gateway to an unforgettable getaway.
           </p>
-          <button class="btn-primary" (click)="scrollTo('rooms')">
+          <button class="btn-primary">
             DISCOVER ROOMS
           </button>
         </div>
