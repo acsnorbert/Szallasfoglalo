@@ -1,32 +1,29 @@
-
 <nav class="nav-glass">
-    <div class="container">
-      <div class="nav-content">
-        <div class="logo">ALMARIS</div>
-
-        <div class="nav-links">
-          <a class="nav-link" routerLink="/">Kezdőlap</a>
-          <a class="nav-link">Szobák</a>
-          <a class="nav-link">Foglalás</a>
-          <a class="nav-link" routerLink="/login">Bejelentkezés</a>
-          <a class="nav-link" routerLink="/registration">Regisztráció</a>
-        </div>
-        
-
-        <button class="mobile-menu-btn">
-          <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="mobile-menu">
-        <a class="mobile-link">Home</a>
-        <a class="mobile-link">Rooms</a>
-        <a class="mobile-link">Reservation</a>
-        <a class="mobile-link">Pages</a>
-        <a class="mobile-link">Contact</a>
-      </div>
+  <div class="container">
+    <div class="nav-content">
+    <div class="logo">
+      <a routerLink="/landing" fragment="home" style="text-decoration: none; color: inherit;">ALMARIS</a>
     </div>
-  </nav>
-  
+      <div class="nav-links">
+        <a class="nav-link" routerLink="/landing" fragment="home">Kezdőlap</a>
+        <a class="nav-link">Szobák</a>
+        <a class="nav-link">Foglalás</a>
+        <a class="nav-link" routerLink="/login">Bejelentkezés</a>
+        <a class="nav-link" routerLink="/registration">Regisztráció</a>
+      </div>
+      
+      <button class="mobile-menu-btn">
+        <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    <div class="mobile-menu">
+      <a class="mobile-link" routerLink="/landing" fragment="home">Kezdőlap</a>
+      <a class="mobile-link">Szobák</a>
+      <a class="mobile-link">Foglalás</a>
+      <a class="mobile-link" routerLink="/login">Bejelentkezés</a>
+      <a class="mobile-link" routerLink="/registration">Regisztráció</a>
+    </div>
+  </div>
+</nav>

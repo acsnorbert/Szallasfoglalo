@@ -1,4 +1,4 @@
-// Navigation
+
 .nav-glass {
     position: fixed;
     top: 0;
@@ -33,7 +33,7 @@
     font-weight: 700;
     letter-spacing: 0.1em;
     font-family: 'Playfair Display', serif;
-  
+    
     @media (max-width: 640px) {
       font-size: 1.25rem;
     }
