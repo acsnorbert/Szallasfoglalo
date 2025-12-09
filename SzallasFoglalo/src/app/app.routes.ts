@@ -6,12 +6,13 @@ import { RegistrationComponent } from '../components/user/registration/registrat
 import { ProfileComponent } from '../components/user/profile/profile.component';
 import { AdminDashboardComponent } from '../components/admin/admin-dashboard/admin-dashboard';
 import { NotfoundComponent } from '../components/system/notfound/notfound.component';
+import { AccommodationListComponent } from '../components/system/accommodation-list/accommodation-list.component';
 
 export const routes: Routes = [
 
     { path: 'landing', component: LandingComponent },
     { path: 'admin', component: AdminDashboardComponent },
-
+    { path: 'accommodation', component: AccommodationListComponent },
     { path: '', component: LandingComponent },
     { path: 'login', component: LoginComponent },
     { path: 'registration', component: RegistrationComponent },
