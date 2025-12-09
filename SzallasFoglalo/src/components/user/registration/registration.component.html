@@ -1,82 +1,88 @@
 <div class="register-container">
-    <div class="register-wrapper">
-      <div class="register-header">
-        <h1 class="logo-text">ALMARIS</h1>
-        <p class="subtitle">Hozz létre egy fiókot!</p>
-      </div>
-  
-      <form class="register-form" id="registerForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="firstName" class="form-label">Név</label>
-            <input
-              type="text"
-              id="firstName"
-              class="form-input"
-              placeholder="Add meg a neved!"
-              required
-              [(ngModel)]="newUser.name"
-            />
+  <div class="register-wrapper">
+    <div class="register-header">
+      <h1 class="logo-text">ALMARIS</h1>
+      <p class="subtitle">Hozz létre egy fiókot!</p>
+    </div>
 
-          </div>
-        </div>
-  
+    <form class="register-form" id="registerForm">
+      <div class="form-row">
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="firstName" class="form-label">Név</label>
           <input
-            type="email"
-            id="email"
+            type="text"
+            id="firstName"
             class="form-input"
-            placeholder="Add meg az email címed!"
+            placeholder="Add meg a neved!"
             required
-            [(ngModel)]="newUser.email"
+            name="name"
+            [(ngModel)]="newUser.name"
           />
         </div>
-  
-        <div class="form-group">
-          <label for="password" class="form-label">Jelszó</label>
-          <input
-            type="password"
-            id="password"
-            class="form-input"
-            placeholder="Add meg a jelszavad!"
-            required
-            [(ngModel)]="newUser.password"
-            />
-        </div>
-  
-        <div class="form-group">
-          <label for="confirmPassword" class="form-label">Jelszó megerősítés</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            class="form-input"
-            placeholder="Jelszó megerősítés"
-            required
-            [(ngModel)]="newUser.confirm"
-          />
-        </div>
-  
-        <div class="form-group checkbox">
-          <input
-            type="checkbox"
-            id="terms"
-            class="form-checkbox"
-            required
-            [(ngModel)]="acceptTerms"
-            />
-          <label for="terms" class="checkbox-label">
-            Elfogadom a <a href="https://chatgpt.com/" class="terms-link">szabályzatot</a>
-          </label>
-        </div>
-  
-        <button type="submit" class="submit-button" (click)="registration()">
-          Fiók létrehozása
-        </button>
-      </form>
-  
-      <div class="register-footer">
-        <p class="footer-text">Van már fiókod? <a routerLink="/login" class="footer-link">Jelentkezz be!</a></p>
       </div>
+
+      <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          id="email"
+          class="form-input"
+          placeholder="Add meg az email címed!"
+          required
+          name="email"
+          [(ngModel)]="newUser.email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Jelszó</label>
+        <input
+          type="password"
+          id="password"
+          class="form-input"
+          placeholder="Add meg a jelszavad!"
+          required
+          name="password"
+          [(ngModel)]="newUser.password"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword" class="form-label">Jelszó megerősítés</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          class="form-input"
+          placeholder="Jelszó megerősítés"
+          required
+          name="confirmPassword"
+          [(ngModel)]="newUser.confirm"
+        />
+      </div>
+
+      <div class="form-group checkbox">
+        <input
+          type="checkbox"
+          id="terms"
+          class="form-checkbox"
+          required
+          name="acceptTerms"
+          [(ngModel)]="acceptTerms"
+        />
+        <label for="terms" class="checkbox-label">
+          Elfogadom a <a href="https://chatgpt.com/" class="terms-link">szabályzatot</a>
+        </label>
+      </div>
+
+      <button type="submit" class="submit-button" (click)="registration()">
+        Fiók létrehozása
+      </button>
+    </form>
+
+    <div class="register-footer">
+      <p class="footer-text">Van már fiókod?
+        <a routerLink="/login" class="footer-link">Jelentkezz be!</a>
+      </p>
     </div>
   </div>
+</div>

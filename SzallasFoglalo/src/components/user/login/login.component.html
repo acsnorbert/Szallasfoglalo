@@ -1,59 +1,62 @@
 <div class="login-container">
-    <div class="login-wrapper">
-      <div class="login-header">
-        <h1 class="logo-text">ALMARIS</h1>
+  <div class="login-wrapper">
+    <div class="login-header">
+      <h1 class="logo-text">ALMARIS</h1>
+    </div>
+
+    <form class="login-form">
+      <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          id="email"
+          class="form-input"
+          placeholder="Add meg az emailed!"
+          required
+          name="email"
+          [(ngModel)]="user.email"
+        />
+        <div class="error-message">
+          Valós emailt adj meg!
+        </div>
       </div>
-  
-      <form class="login-form">
-        <div class="form-group">
-          <label for="email" class="form-label">Email</label>
-          <input
-            type="email"
-            id="email"
-            class="form-input"
-            placeholder="Add meg az emailed!"
-            required
-            [(ngModel)]="user.email"
-          />
-          <div class="error-message">
-            Valós emailt adj meg!
-          </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Jelszó</label>
+        <input
+          type="password"
+          id="password"
+          class="form-input"
+          placeholder="Add meg a jelszavad!"
+          required
+          name="password"
+          [(ngModel)]="user.password"
+        />
+        <div class="error-message">
+          Jelszó megadása kötelező
         </div>
-  
-        <div class="form-group">
-          <label for="password" class="form-label">Jelszó</label>
-          <input
-            type="password"
-            id="password"
-            class="form-input"
-            placeholder="Add meg a jelszavad!"
-            required
-            [(ngModel)]="user.password"
-          />
-          <div class="error-message">
-            Jelszó megadása kötelező
-          </div>
-        </div>
-  
-        <div class="form-group checkbox">
-          <input
-            type="checkbox"
-            id="remember"
-            class="form-checkbox"
-            [(ngModel)]="rememberMe"
-          />
-          <label for="remember" class="checkbox-label">Emlékezz rám</label>
-        </div>
-  
-        <button type="submit" class="submit-button" (click)="login()">
-          Bejelentkezés
-        </button>
-      </form>
-  
-      <div class="login-footer">
-        <a href="#" class="footer-link">Elfelejtetted a jelszavad?</a>
-        <span class="divider">•</span>
-        <a routerLink="/registration" class="footer-link">Regisztráció</a>
       </div>
+
+      <div class="form-group checkbox">
+        <input
+          type="checkbox"
+          id="remember"
+          class="form-checkbox"
+          name="rememberMe"
+          [(ngModel)]="rememberMe"
+        />
+        <label for="remember" class="checkbox-label">Emlékezz rám</label>
+      </div>
+
+      <button type="submit" class="submit-button" (click)="login()">
+        Bejelentkezés
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <a href="#" class="footer-link">Elfelejtetted a jelszavad?</a>
+      <span class="divider">•</span>
+      <a routerLink="/registration" class="footer-link">Regisztráció</a>
     </div>
   </div>
+</div>

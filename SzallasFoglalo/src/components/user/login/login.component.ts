@@ -45,7 +45,7 @@ export class LoginComponent{
       }
 
       this.auth.login(JSON.stringify(res.data));
-      this.router.navigate(['/accomodations']);
+      this.router.navigate(['/landing']);
 
     });
   }
