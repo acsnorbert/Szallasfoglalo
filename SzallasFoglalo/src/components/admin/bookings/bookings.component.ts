@@ -2,22 +2,24 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
+
 
 interface Booking {
-  id: string;
-  accommodationId: string;
-  accommodationName: string;
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-  checkIn: Date;
-  checkOut: Date;
-  nights: number;
-  guests: number;
+  id: number;
+  userId: number;
+  accommodationId: number;
+  startDate: string;
+  endDate: string;
+  persons: number;
   totalPrice: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  notes?: string;
-  createdAt: Date;
+  status: boolean;
+  createdAt: string;
+  // Kiegészítő mezők
+  accommodationName?: string;
+  userName?: string;
+  userEmail?: string;
+  nights?: number;
 }
 
 @Component({
@@ -28,71 +30,7 @@ interface Booking {
   styleUrls: ['./bookings.component.scss']
 })
 export class BookingsComponent implements OnInit {
-  bookings: Booking[] = [
-    {
-      id: 'BK001',
-      accommodationId: '1',
-      accommodationName: 'Deluxe Suite',
-      guestName: 'Kiss János',
-      guestEmail: 'kiss.janos@example.com',
-      guestPhone: '+36 30 123 4567',
-      checkIn: new Date('2025-01-15'),
-      checkOut: new Date('2025-01-18'),
-      nights: 3,
-      guests: 2,
-      totalPrice: 270000,
-      status: 'confirmed',
-      notes: 'Korai bejelentkezést kért',
-      createdAt: new Date('2025-01-01')
-    },
-    {
-      id: 'BK002',
-      accommodationId: '2',
-      accommodationName: 'Executive Room',
-      guestName: 'Nagy Anna',
-      guestEmail: 'nagy.anna@example.com',
-      guestPhone: '+36 20 987 6543',
-      checkIn: new Date('2025-01-20'),
-      checkOut: new Date('2025-01-22'),
-      nights: 2,
-      guests: 1,
-      totalPrice: 64000,
-      status: 'pending',
-      createdAt: new Date('2025-01-05')
-    },
-    {
-      id: 'BK003',
-      accommodationId: '3',
-      accommodationName: 'Family Suite',
-      guestName: 'Kovács Péter',
-      guestEmail: 'kovacs.peter@example.com',
-      guestPhone: '+36 70 555 1234',
-      checkIn: new Date('2025-02-01'),
-      checkOut: new Date('2025-02-05'),
-      nights: 4,
-      guests: 4,
-      totalPrice: 448000,
-      status: 'confirmed',
-      notes: 'Családi program',
-      createdAt: new Date('2025-01-10')
-    },
-    {
-      id: 'BK004',
-      accommodationId: '1',
-      accommodationName: 'Deluxe Suite',
-      guestName: 'Szabó Éva',
-      guestEmail: 'szabo.eva@example.com',
-      guestPhone: '+36 30 999 8888',
-      checkIn: new Date('2024-12-20'),
-      checkOut: new Date('2024-12-23'),
-      nights: 3,
-      guests: 3,
-      totalPrice: 405000,
-      status: 'completed',
-      createdAt: new Date('2024-12-01')
-    }
-  ];
-
+  bookings: Booking[] = [];
   filteredBookings: Booking[] = [];
   bookingForm!: FormGroup;
   showModal = false;
@@ -105,42 +43,94 @@ export class BookingsComponent implements OnInit {
   accommodationFilter = 'all';
   dateFilter = '';
 
-  constructor(private fb: FormBuilder) {}
+  accommodations: any[] = [];
+  users: any[] = [];
 
-  ngOnInit(): void {
+  constructor(
+    private fb: FormBuilder,
+    private apiService: ApiService
+  ) {}
+
+  async ngOnInit(): Promise<void> {
     this.initForm();
-    this.filteredBookings = [...this.bookings];
+    await this.loadData();
   }
 
   initForm(): void {
     this.bookingForm = this.fb.group({
+      userId: ['', Validators.required],
       accommodationId: ['', Validators.required],
-      guestName: ['', Validators.required],
-      guestEmail: ['', [Validators.required, Validators.email]],
-      guestPhone: ['', Validators.required],
-      checkIn: ['', Validators.required],
-      checkOut: ['', Validators.required],
-      guests: [1, [Validators.required, Validators.min(1)]],
-      status: ['pending', Validators.required],
-      notes: ['']
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      persons: [1, [Validators.required, Validators.min(1)]],
+      status: [true, Validators.required]
     });
+  }
+
+  async loadData(): Promise<void> {
+    await this.loadAccommodations();
+    await this.loadUsers();
+    await this.loadBookings();
+  }
+
+  async loadAccommodations(): Promise<void> {
+    const response = await this.apiService.selectAll('accommodations');
+    if (response.status === 200) {
+      this.accommodations = response.data;
+    }
+  }
+
+  async loadUsers(): Promise<void> {
+    const response = await this.apiService.selectAll('users');
+    if (response.status === 200) {
+      this.users = response.data;
+    }
+  }
+
+  async loadBookings(): Promise<void> {
+    const response = await this.apiService.selectAll('bookings');
+    if (response.status === 200) {
+      this.bookings = response.data.map((booking: any) => {
+        const accommodation = this.accommodations.find(a => a.id === booking.accommodationId);
+        const user = this.users.find(u => u.id === booking.userId);
+        
+        const startDate = new Date(booking.startDate);
+        const endDate = new Date(booking.endDate);
+        const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        return {
+          ...booking,
+          status: booking.status === 1,
+          accommodationName: accommodation?.name || 'Ismeretlen',
+          userName: user?.name || 'Ismeretlen',
+          userEmail: user?.email || '',
+          nights: nights
+        };
+      });
+      
+      this.filterBookings();
+    }
   }
 
   filterBookings(): void {
     this.filteredBookings = this.bookings.filter(booking => {
-      const matchesSearch = booking.id.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                           booking.guestName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                           booking.guestEmail.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchesSearch = booking.id.toString().includes(this.searchTerm) ||
+                           (booking.userName || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                           (booking.userEmail || '').toLowerCase().includes(this.searchTerm.toLowerCase());
       
-      const matchesStatus = this.statusFilter === 'all' || booking.status === this.statusFilter;
+      const matchesStatus = this.statusFilter === 'all' ||
+                           (this.statusFilter === 'confirmed' && booking.status) ||
+                           (this.statusFilter === 'pending' && !booking.status);
       
       const matchesAccommodation = this.accommodationFilter === 'all' ||
-                                   booking.accommodationName.toLowerCase().includes(this.accommodationFilter.toLowerCase());
+                                   booking.accommodationId.toString() === this.accommodationFilter;
       
       let matchesDate = true;
       if (this.dateFilter) {
         const filterDate = new Date(this.dateFilter);
-        matchesDate = booking.checkIn <= filterDate && booking.checkOut >= filterDate;
+        const startDate = new Date(booking.startDate);
+        const endDate = new Date(booking.endDate);
+        matchesDate = startDate <= filterDate && endDate >= filterDate;
       }
 
       return matchesSearch && matchesStatus && matchesAccommodation && matchesDate;
@@ -149,7 +139,7 @@ export class BookingsComponent implements OnInit {
 
   openCreateBookingModal(): void {
     this.editMode = false;
-    this.bookingForm.reset({ status: 'pending', guests: 1 });
+    this.bookingForm.reset({ status: true, persons: 1 });
     this.showModal = true;
   }
 
@@ -158,8 +148,8 @@ export class BookingsComponent implements OnInit {
     this.selectedBooking = booking;
     this.bookingForm.patchValue({
       ...booking,
-      checkIn: this.formatDateForInput(booking.checkIn),
-      checkOut: this.formatDateForInput(booking.checkOut)
+      startDate: this.formatDateForInput(booking.startDate),
+      endDate: this.formatDateForInput(booking.endDate)
     });
     this.showModal = true;
   }
@@ -180,72 +170,65 @@ export class BookingsComponent implements OnInit {
     this.selectedBooking = null;
   }
 
-  saveBooking(): void {
+  async saveBooking(): Promise<void> {
     if (this.bookingForm.valid) {
       const formValue = this.bookingForm.value;
-      const checkIn = new Date(formValue.checkIn);
-      const checkOut = new Date(formValue.checkOut);
-      const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+      const startDate = new Date(formValue.startDate);
+      const endDate = new Date(formValue.endDate);
+      const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      const accommodationMap: { [key: string]: string } = {
-        '1': 'Deluxe Suite',
-        '2': 'Executive Room',
-        '3': 'Family Suite'
+      const accommodation = this.accommodations.find(a => a.id === parseInt(formValue.accommodationId));
+      const totalPrice = accommodation ? accommodation.basePrice * nights * formValue.persons : 0;
+
+      const bookingData = {
+        userId: formValue.userId,
+        accommodationId: formValue.accommodationId,
+        startDate: formValue.startDate,
+        endDate: formValue.endDate,
+        persons: formValue.persons,
+        totalPrice: totalPrice,
+        status: formValue.status ? 1 : 0
       };
 
-      const basePrice = formValue.accommodationId === '1' ? 45000 : 
-                       formValue.accommodationId === '2' ? 32000 : 28000;
-
       if (this.editMode && this.selectedBooking) {
-        const index = this.bookings.findIndex(b => b.id === this.selectedBooking!.id);
-        if (index !== -1) {
-          this.bookings[index] = {
-            ...this.bookings[index],
-            ...formValue,
-            accommodationName: accommodationMap[formValue.accommodationId],
-            checkIn,
-            checkOut,
-            nights,
-            totalPrice: basePrice * nights * formValue.guests
-          };
+        const response = await this.apiService.update('bookings', this.selectedBooking.id, bookingData);
+        if (response.status === 200) {
+          alert('Foglalás sikeresen frissítve!');
+          await this.loadBookings();
+        } else {
+          alert(response.message || 'Hiba történt a mentés során!');
         }
       } else {
-        const newBooking: Booking = {
-          id: 'BK' + String(this.bookings.length + 1).padStart(3, '0'),
-          ...formValue,
-          accommodationName: accommodationMap[formValue.accommodationId],
-          checkIn,
-          checkOut,
-          nights,
-          totalPrice: basePrice * nights * formValue.guests,
-          createdAt: new Date()
-        };
-        this.bookings.push(newBooking);
+        const response = await this.apiService.insert('bookings', bookingData);
+        if (response.status === 200) {
+          alert('Foglalás sikeresen létrehozva!');
+          await this.loadBookings();
+        } else {
+          alert(response.message || 'Hiba történt a létrehozás során!');
+        }
       }
 
-      this.filterBookings();
       this.closeModal();
     }
   }
 
-  deleteBooking(booking: Booking): void {
+  async deleteBooking(booking: Booking): Promise<void> {
     if (confirm(`Biztosan törölni szeretnéd a(z) #${booking.id} foglalást?`)) {
-      this.bookings = this.bookings.filter(b => b.id !== booking.id);
-      this.filterBookings();
+      const response = await this.apiService.delete('bookings', booking.id);
+      if (response.status === 200) {
+        alert('Foglalás sikeresen törölve!');
+        await this.loadBookings();
+      } else {
+        alert(response.message || 'Hiba történt a törlés során!');
+      }
     }
   }
 
-  getStatusText(status: string): string {
-    const statusTexts: { [key: string]: string } = {
-      'pending': 'Függőben',
-      'confirmed': 'Megerősítve',
-      'cancelled': 'Törölve',
-      'completed': 'Befejezett'
-    };
-    return statusTexts[status] || status;
+  getStatusText(status: boolean): string {
+    return status ? 'Megerősítve' : 'Függőben';
   }
 
-  private formatDateForInput(date: Date): string {
+  private formatDateForInput(date: string): string {
     const d = new Date(date);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');

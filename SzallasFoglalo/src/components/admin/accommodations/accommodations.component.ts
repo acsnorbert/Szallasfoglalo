@@ -2,17 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
+import { environment } from '../../../environments/environment';
 
 interface Accommodation {
-  id: string;
+  id: number;
   name: string;
   address: string;
-  shortDescription: string;
-  longDescription: string;
-  maxCapacity: number;
+  description: string;
+  capacity: number;
   basePrice: number;
+  active: boolean;
+  createdAt: string;
   images: string[];
-  isActive: boolean;
 }
 
 @Component({
@@ -24,49 +26,7 @@ interface Accommodation {
 })
 export class AccommodationsComponent implements OnInit {
 
-  accommodations: Accommodation[] = [
-    {
-      id: '1',
-      name: 'Deluxe Suite',
-      address: 'Budapest, Andrássy út 45.',
-      shortDescription: 'Tágas apartman panorámás kilátással és modern berendezéssel',
-      longDescription: 'Luxus kategóriás lakosztály a város szívében, minden kényelemmel felszerelve.',
-      maxCapacity: 4,
-      basePrice: 45000,
-      images: [
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800',
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800'
-      ],
-      isActive: true
-    },
-    {
-      id: '2',
-      name: 'Executive Room',
-      address: 'Budapest, Váci utca 12.',
-      shortDescription: 'Elegáns szoba üzleti utazóknak, minden kényelemmel',
-      longDescription: 'Kiváló választás az üzleti utazók számára, modern felszereléssel.',
-      maxCapacity: 2,
-      basePrice: 32000,
-      images: [
-        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=800'
-      ],
-      isActive: true
-    },
-    {
-      id: '3',
-      name: 'Family Suite',
-      address: 'Budapest, Dohány utca 8.',
-      shortDescription: 'Ideális családoknak, akár 6 fő részére kényelmesen',
-      longDescription: 'Nagy családi apartman minden szükséges kényelemmel és felszereléssel.',
-      maxCapacity: 6,
-      basePrice: 28000,
-      images: [
-        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=800'
-      ],
-      isActive: false
-    }
-  ];
-
+  accommodations: Accommodation[] = [];
   filteredAccommodations: Accommodation[] = [];
   accommodationForm!: FormGroup;
   showModal = false;
@@ -81,23 +41,52 @@ export class AccommodationsComponent implements OnInit {
   lightboxImages: string[] = [];
   currentImageIndex = 0;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private apiService: ApiService
+  ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.initForm();
-    this.filteredAccommodations = [...this.accommodations];
+    await this.loadAccommodations();
   }
 
   initForm(): void {
     this.accommodationForm = this.fb.group({
       name: ['', Validators.required],
       address: ['', Validators.required],
-      shortDescription: ['', Validators.required],
-      longDescription: [''],
-      maxCapacity: [1, [Validators.required, Validators.min(1)]],
+      description: ['', Validators.required],
+      capacity: [1, [Validators.required, Validators.min(1)]],
       basePrice: [0, [Validators.required, Validators.min(0)]],
-      isActive: [true]
+      active: [true]
     });
+  }
+
+  async loadAccommodations(): Promise<void> {
+    const response = await this.apiService.selectAll('accommodations');
+    if (response.status === 200) {
+      this.accommodations = response.data.map((acc: any) => ({
+        ...acc,
+        active: acc.active === 1,
+        images: []
+      }));
+      
+      // Képek betöltése minden szálláshoz
+      for (let acc of this.accommodations) {
+        await this.loadImages(acc);
+      }
+      
+      this.filterAccommodations();
+    }
+  }
+
+  async loadImages(accommodation: Accommodation): Promise<void> {
+    const response = await this.apiService.selectAll('accommodation_images');
+    if (response.status === 200) {
+      const images = response.data
+        .filter((img: any) => img.accommodationId === accommodation.id)
+      accommodation.images = images;
+    }
   }
 
   filterAccommodations(): void {
@@ -105,15 +94,15 @@ export class AccommodationsComponent implements OnInit {
       const matchesSearch = acc.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                            acc.address.toLowerCase().includes(this.searchTerm.toLowerCase());
       const matchesStatus = this.statusFilter === 'all' ||
-                           (this.statusFilter === 'active' && acc.isActive) ||
-                           (this.statusFilter === 'inactive' && !acc.isActive);
+                           (this.statusFilter === 'active' && acc.active) ||
+                           (this.statusFilter === 'inactive' && !acc.active);
       return matchesSearch && matchesStatus;
     });
   }
 
   openCreateModal(): void {
     this.editMode = false;
-    this.accommodationForm.reset({ isActive: true });
+    this.accommodationForm.reset({ active: true, capacity: 1, basePrice: 0 });
     this.showModal = true;
   }
 
@@ -130,36 +119,44 @@ export class AccommodationsComponent implements OnInit {
     this.accommodationForm.reset();
   }
 
-  saveAccommodation(): void {
+  async saveAccommodation(): Promise<void> {
     if (this.accommodationForm.valid) {
-      const formValue = this.accommodationForm.value;
+      const formValue = {
+        ...this.accommodationForm.value,
+        active: this.accommodationForm.value.active ? 1 : 0
+      };
       
       if (this.editMode && this.selectedAccommodation) {
-        const index = this.accommodations.findIndex(a => a.id === this.selectedAccommodation!.id);
-        if (index !== -1) {
-          this.accommodations[index] = {
-            ...this.accommodations[index],
-            ...formValue
-          };
+        const response = await this.apiService.update('accommodations', this.selectedAccommodation.id, formValue);
+        if (response.status === 200) {
+          alert('Szállás sikeresen frissítve!');
+          await this.loadAccommodations();
+        } else {
+          alert(response.message || 'Hiba történt a mentés során!');
         }
       } else {
-        const newAccommodation: Accommodation = {
-          id: Date.now().toString(),
-          ...formValue,
-          images: []
-        };
-        this.accommodations.push(newAccommodation);
+        const response = await this.apiService.insert('accommodations', formValue);
+        if (response.status === 200) {
+          alert('Szállás sikeresen létrehozva!');
+          await this.loadAccommodations();
+        } else {
+          alert(response.message || 'Hiba történt a létrehozás során!');
+        }
       }
 
-      this.filterAccommodations();
       this.closeModal();
     }
   }
 
-  deleteAccommodation(accommodation: Accommodation): void {
+  async deleteAccommodation(accommodation: Accommodation): Promise<void> {
     if (confirm(`Biztosan törölni szeretnéd a(z) "${accommodation.name}" szállást?`)) {
-      this.accommodations = this.accommodations.filter(a => a.id !== accommodation.id);
-      this.filterAccommodations();
+      const response = await this.apiService.delete('accommodations', accommodation.id);
+      if (response.status === 200) {
+        alert('Szállás sikeresen törölve!');
+        await this.loadAccommodations();
+      } else {
+        alert(response.message || 'Hiba történt a törlés során!');
+      }
     }
   }
 
@@ -173,24 +170,62 @@ export class AccommodationsComponent implements OnInit {
     this.selectedAccommodation = null;
   }
 
-  onFileSelected(event: Event): void {
+  async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (input.files && this.selectedAccommodation) {
-      Array.from(input.files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e: ProgressEvent<FileReader>) => {
-          if (e.target?.result && this.selectedAccommodation) {
-            this.selectedAccommodation.images.push(e.target.result as string);
+      const files = Array.from(input.files);
+      
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        const uploadResponse = await this.apiService.upload(formData);
+        if (uploadResponse.status === 200) {
+          // Kép mentése az adatbázisba
+          const imageData = {
+            accommodationId: this.selectedAccommodation.id,
+            imagePath: uploadResponse.data.filename
+          };
+          
+          const insertResponse = await this.apiService.insert('accommodation_images', imageData);
+          if (insertResponse.status === 200) {
+            // Frissítjük a komponens állapotát
           }
-        };
-        reader.readAsDataURL(file);
-      });
+        } else {
+          alert(uploadResponse.message || 'Hiba történt a kép feltöltése során!');
+        }
+      }
     }
   }
 
-  deleteImage(index: number): void {
+  async deleteImage(index: number): Promise<void> {
     if (this.selectedAccommodation && confirm('Biztosan törölni szeretnéd ezt a képet?')) {
-      this.selectedAccommodation.images.splice(index, 1);
+      const imagePath = this.selectedAccommodation.images[index];
+      const filename = imagePath.split('/').pop();
+      
+      if (!filename) return;
+      
+      // Töröljük a fájlt a szerverről
+      const deleteFileResponse = await this.apiService.deleteImage(filename);
+      
+      if (deleteFileResponse.status === 200) {
+        // Megkeressük az image_id-t az adatbázisban
+        const imagesResponse = await this.apiService.selectAll('accommodation_images');
+        if (imagesResponse.status === 200) {
+          const imageRecord = imagesResponse.data.find((img: any) => 
+            img.accommodationId === this.selectedAccommodation!.id && 
+            img.imagePath === filename
+          );
+          
+          if (imageRecord) {
+            // Töröljük az adatbázisból
+            await this.apiService.delete('accommodation_images', imageRecord.id);
+            this.selectedAccommodation.images.splice(index, 1);
+          }
+        }
+      } else {
+        alert(deleteFileResponse.message || 'Hiba történt a kép törlése során!');
+      }
     }
   }
 
