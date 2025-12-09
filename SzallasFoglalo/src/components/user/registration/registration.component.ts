@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { User } from '../../../interfaces/user';
-import { ApiService } from '../../../services/api';
-import { MessageService } from '../../../services/message';
+import { ApiService } from '../../../services/api.service';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
   selector: 'app-register',

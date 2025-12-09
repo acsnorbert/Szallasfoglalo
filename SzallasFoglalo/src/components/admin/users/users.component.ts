@@ -2,17 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  phone: string;
-  role: 'admin' | 'user';
-  registeredAt: Date;
-  bookingCount: number;
-  isActive: boolean;
-  notes?: string;
+  password: string;
+  role: string;
+  createdAt: string;
+  bookingCount?: number;
+  isActive?: boolean;
 }
 
 @Component({
@@ -23,62 +23,7 @@ interface User {
   styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit {
-  users: User[] = [
-    {
-      id: '1',
-      name: 'Kiss János',
-      email: 'kiss.janos@example.com',
-      phone: '+36 30 123 4567',
-      role: 'user',
-      registeredAt: new Date('2024-06-15'),
-      bookingCount: 5,
-      isActive: true,
-      notes: 'VIP vendég'
-    },
-    {
-      id: '2',
-      name: 'Nagy Anna',
-      email: 'nagy.anna@example.com',
-      phone: '+36 20 987 6543',
-      role: 'user',
-      registeredAt: new Date('2024-08-22'),
-      bookingCount: 2,
-      isActive: true
-    },
-    {
-      id: '3',
-      name: 'Kovács Péter',
-      email: 'kovacs.peter@example.com',
-      phone: '+36 70 555 1234',
-      role: 'admin',
-      registeredAt: new Date('2024-01-10'),
-      bookingCount: 0,
-      isActive: true,
-      notes: 'Admin jogosultság'
-    },
-    {
-      id: '4',
-      name: 'Szabó Éva',
-      email: 'szabo.eva@example.com',
-      phone: '+36 30 999 8888',
-      role: 'user',
-      registeredAt: new Date('2024-11-05'),
-      bookingCount: 8,
-      isActive: false,
-      notes: 'Kért deaktiválást'
-    },
-    {
-      id: '5',
-      name: 'Tóth Gábor',
-      email: 'toth.gabor@example.com',
-      phone: '+36 20 111 2222',
-      role: 'user',
-      registeredAt: new Date('2024-09-18'),
-      bookingCount: 3,
-      isActive: true
-    }
-  ];
-
+  users: User[] = [];
   filteredUsers: User[] = [];
   userForm!: FormGroup;
   showViewModal = false;
@@ -89,22 +34,39 @@ export class UsersComponent implements OnInit {
   roleFilter = 'all';
   statusFilter = 'all';
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private apiService: ApiService
+  ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.initForm();
-    this.filteredUsers = [...this.users];
+    await this.loadUsers();
   }
 
   initForm(): void {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
-      role: ['user', Validators.required],
-      isActive: [true],
-      notes: ['']
+      role: ['user', Validators.required]
     });
+  }
+
+  async loadUsers(): Promise<void> {
+    const response = await this.apiService.selectAll('users');
+    if (response.status === 200) {
+      // Foglalások számának betöltése
+      const bookingsResponse = await this.apiService.selectAll('bookings');
+      const bookings = bookingsResponse.status === 200 ? bookingsResponse.data : [];
+      
+      this.users = response.data.map((user: any) => ({
+        ...user,
+        isActive: true, // Alapértelmezett érték, ha nincs az adatbázisban
+        bookingCount: bookings.filter((b: any) => b.userId === user.id).length
+      }));
+      
+      this.filterUsers();
+    }
   }
 
   filterUsers(): void {
@@ -144,25 +106,39 @@ export class UsersComponent implements OnInit {
     this.userForm.reset();
   }
 
-  saveUser(): void {
+  async saveUser(): Promise<void> {
     if (this.userForm.valid && this.selectedUser) {
-      const index = this.users.findIndex(u => u.id === this.selectedUser!.id);
-      if (index !== -1) {
-        this.users[index] = {
-          ...this.users[index],
-          ...this.userForm.value
-        };
+      const userData = this.userForm.value;
+      
+      const response = await this.apiService.update('users', this.selectedUser.id, userData);
+      if (response.status === 200) {
+        alert('Felhasználó sikeresen frissítve!');
+        await this.loadUsers();
+      } else {
+        alert(response.message || 'Hiba történt a mentés során!');
       }
-      this.filterUsers();
+      
       this.closeEditModal();
     }
   }
 
-  toggleUserStatus(user: User): void {
+  async toggleUserStatus(user: User): Promise<void> {
     const action = user.isActive ? 'deaktiválni' : 'aktiválni';
     if (confirm(`Biztosan ${action} szeretnéd ${user.name} fiókját?`)) {
       user.isActive = !user.isActive;
-      this.filterUsers();
+      
+      // Ha van status mező az adatbázisban
+      const response = await this.apiService.update('users', user.id, { 
+        status: user.isActive ? 1 : 0 
+      });
+      
+      if (response.status === 200) {
+        alert(`Felhasználó sikeresen ${user.isActive ? 'aktiválva' : 'deaktiválva'}!`);
+        this.filterUsers();
+      } else {
+        user.isActive = !user.isActive; // Visszaállítjuk
+        alert(response.message || 'Hiba történt a művelet során!');
+      }
     }
   }
 

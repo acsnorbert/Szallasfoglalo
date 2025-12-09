@@ -54,14 +54,8 @@
                   <span class="user-name">{{ user.name }}</span>
                 </div>
               </td>
-              <td class="user-email">{{ user.email }}</td>
-              <td>{{ user.phone }}</td>
-              <td>
-                <span class="role-badge" [class]="'role-' + user.role">
-                  {{ getRoleText(user.role) }}
-                </span>
-              </td>
-              <td>{{ user.registeredAt | date:'yyyy.MM.dd' }}</td>
+
+              <td>{{ user.createdAt | date:'yyyy.MM.dd' }}</td>
               <td class="text-center">
                 <span class="booking-count">{{ user.bookingCount }}</span>
               </td>
@@ -145,15 +139,11 @@
             <p class="detail-value">{{ selectedUser.email }}</p>
           </div>
   
-          <div class="detail-section">
-            <h4>Telefonszám</h4>
-            <p class="detail-value">{{ selectedUser.phone }}</p>
-          </div>
   
           <div class="detail-row">
             <div class="detail-section">
               <h4>Regisztráció dátuma</h4>
-              <p class="detail-value">{{ selectedUser.registeredAt | date:'yyyy. MM. dd.' }}</p>
+              <p class="detail-value">{{ selectedUser.createdAt | date:'yyyy. MM. dd.' }}</p>
             </div>
   
             <div class="detail-section">
@@ -169,9 +159,9 @@
             </span>
           </div>
   
-          <div class="detail-section" *ngIf="selectedUser.notes">
+          <div class="detail-section" *ngIf="selectedUser.name">
             <h4>Megjegyzések</h4>
-            <p class="detail-value">{{ selectedUser.notes }}</p>
+            <p class="detail-value">{{ selectedUser.name }}</p>
           </div>
         </div>
       </div>
