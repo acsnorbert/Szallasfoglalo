@@ -3,7 +3,7 @@ import { AccommodationsComponent } from "../accommodations/accommodations.compon
 import { BookingsComponent } from "../bookings/bookings.component";
 import { UsersComponent } from "../users/users.component";
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../../services/api.service';
+import { ApiService } from '../../../services/api';
 
 
 @Component({

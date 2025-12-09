@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../../services/auth';
 import { NavItem } from '../../../interfaces/navItem';
 import { CommonModule } from '@angular/common';
 

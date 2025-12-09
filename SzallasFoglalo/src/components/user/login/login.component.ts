@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import {ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { User } from '../../../interfaces/user';
-import { ApiService } from '../../../services/api.service';
-import { MessageService } from '../../../services/message.service';
-import { AuthService } from '../../../services/auth.service';
+import { ApiService } from '../../../services/api';
+import { MessageService } from '../../../services/message';
+import { AuthService } from '../../../services/auth';
 
 @Component({
   selector: 'app-login',
