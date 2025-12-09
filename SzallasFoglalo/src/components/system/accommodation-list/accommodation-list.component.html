@@ -1,1 +1,97 @@
-<p>accommodation-list works!</p>
+<section class="accommodations-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="header-stars">★★★★★</div>
+        <h1>Kiemelt Szálláslista</h1>
+        <p>Fedezd fel a legjobb ajánlatainkat, ahol az ár és minőség tökéletes harmóniában találkozik</p>
+      </div>
+    </div>
+  </section>
+  
+  <div class="filters-wrapper">
+    <div class="container">
+      <div class="filters-container">
+        <div class="filter-section-title">🔍 Keresés & Szűrés</div>
+        
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="location">📍 Elhelyezkedés</label>
+            <input type="text" id="location" placeholder="Város, régió...">
+          </div>
+          <div class="filter-group">
+            <label for="capacity">👥 Férőhely</label>
+            <input type="number" id="capacity" placeholder="Minimum emberszám" min="1">
+          </div>
+          <div class="filter-group">
+            <label for="availableDate">📅 Elérhető dátum</label>
+            <input type="date" id="availableDate">
+          </div>
+        </div>
+  
+        <div class="sort-section">
+          <div class="filter-section-title" style="margin-bottom: 1rem; padding-bottom: 0.5rem;">📊 Rendezés</div>
+          <div class="sort-buttons">
+            <button class="sort-btn" >Ár szerint</button>
+            <button class="sort-btn">Név szerint</button>
+            <button class="sort-btn">Férőhely szerint</button>
+            <button class="sort-btn active">Alapértelmezett</button>
+          </div>
+        </div>
+  
+        <div class="action-buttons">
+          <button class="btn btn-primary">🔍 Szűrés alkalmazása</button>
+          <button class="btn btn-secondary">↻ Alapértelmezés</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <section class="accommodations-section">
+    <div class="container">
+      <div class="accommodations-grid">
+        <div class="accommodation-card" *ngFor="let acc of accommodations" >
+          <div class="card-image">
+            <img [src]="acc.image" [alt]="acc.title" *ngIf="acc.image">
+            <div *ngIf="!acc.image" style="background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); width: 100%; height: 100%;"></div>
+            <div class="card-stars">
+              <span class="star" *ngFor="let i of [1,2,3,4,5]">★</span>
+            </div>
+            <div class="card-badge"></div>
+          </div>
+  
+          <div class="card-content">
+            <h3 class="card-title">{{ acc.title }}</h3>
+            <p class="card-description">{{ acc.description }}</p>
+            
+            <div class="card-info">
+              <div class="info-item">
+                <span class="info-icon">👥</span>
+                <span>{{ acc.capacity }} fő</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">📍</span>
+                <span>{{ acc.location }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">🛏️</span>
+                <span>{{ acc.bedType }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">📶</span>
+                <span>WiFi</span>
+              </div>
+            </div>
+  
+            <div class="card-price">
+              <span class="price">{{ acc.price}} Ft<span class="price-unit">/éjszaka</span></span>
+              <div class="availability-badge" [class.unavailable]="!acc.available">
+                {{ acc.available ? 'Elérhető' : 'Nem elérhető' }}
+              </div>
+            </div>
+  
+            <button class="card-button">Részletek</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
