@@ -10,11 +10,14 @@ interface Accommodation {
   name: string;
   address: string;
   description: string;
-  capacity: number;
+  shortDescription: string;
+  longDescription: string;
+  maxCapacity: number;
   basePrice: number;
-  active: boolean;
+  isActive: boolean;
   createdAt: string;
   images: string[];
+
 }
 
 @Component({
@@ -55,10 +58,11 @@ export class AccommodationsComponent implements OnInit {
     this.accommodationForm = this.fb.group({
       name: ['', Validators.required],
       address: ['', Validators.required],
-      description: ['', Validators.required],
-      capacity: [1, [Validators.required, Validators.min(1)]],
+      shortDescription: ['', Validators.required],
+      longDescription: [''],
+      maxCapacity: [1, [Validators.required, Validators.min(1)]],
       basePrice: [0, [Validators.required, Validators.min(0)]],
-      active: [true]
+      isActive: [true]
     });
   }
 
@@ -67,7 +71,7 @@ export class AccommodationsComponent implements OnInit {
     if (response.status === 200) {
       this.accommodations = response.data.map((acc: any) => ({
         ...acc,
-        active: acc.active === 1,
+        isActive: acc.isActive === 1,
         images: []
       }));
       
@@ -85,6 +89,7 @@ export class AccommodationsComponent implements OnInit {
     if (response.status === 200) {
       const images = response.data
         .filter((img: any) => img.accommodationId === accommodation.id)
+        .map((img: any) => `${environment.apiUrl}/uploads/${img.imagePath}`);
       accommodation.images = images;
     }
   }
@@ -94,15 +99,15 @@ export class AccommodationsComponent implements OnInit {
       const matchesSearch = acc.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                            acc.address.toLowerCase().includes(this.searchTerm.toLowerCase());
       const matchesStatus = this.statusFilter === 'all' ||
-                           (this.statusFilter === 'active' && acc.active) ||
-                           (this.statusFilter === 'inactive' && !acc.active);
+                           (this.statusFilter === 'active' && acc.isActive) ||
+                           (this.statusFilter === 'inactive' && !acc.isActive);
       return matchesSearch && matchesStatus;
     });
   }
 
   openCreateModal(): void {
     this.editMode = false;
-    this.accommodationForm.reset({ active: true, capacity: 1, basePrice: 0 });
+    this.accommodationForm.reset({ isActive: true, maxCapacity: 1, basePrice: 0 });
     this.showModal = true;
   }
 
@@ -123,7 +128,8 @@ export class AccommodationsComponent implements OnInit {
     if (this.accommodationForm.valid) {
       const formValue = {
         ...this.accommodationForm.value,
-        active: this.accommodationForm.value.active ? 1 : 0
+        description: this.accommodationForm.value.shortDescription, // Kompatibilitás miatt
+        isActive: this.accommodationForm.value.isActive ? 1 : 0
       };
       
       if (this.editMode && this.selectedAccommodation) {
@@ -189,12 +195,16 @@ export class AccommodationsComponent implements OnInit {
           
           const insertResponse = await this.apiService.insert('accommodation_images', imageData);
           if (insertResponse.status === 200) {
-            // Frissítjük a komponens állapotát
+            // Képek újratöltése
+            await this.loadImages(this.selectedAccommodation);
           }
         } else {
           alert(uploadResponse.message || 'Hiba történt a kép feltöltése során!');
         }
       }
+      
+      // Input mező törlése a következő feltöltéshez
+      input.value = '';
     }
   }
 

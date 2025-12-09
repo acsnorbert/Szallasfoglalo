@@ -27,13 +27,10 @@
           
           <!-- Admin menüpontok -->
           @if (isAdmin) {
-            <div class="nav-divider"></div>
-            <a class="nav-link admin-link" routerLink="/admin/dashboard" routerLinkActive="active">
+            <a class="nav-link admin-link" routerLink="/admin" routerLinkActive="active">
               <span class="admin-badge">Admin</span> Panel
             </a>
-            <a class="nav-link admin-link" routerLink="/admin/rooms" routerLinkActive="active">Szobák kezelése</a>
-            <a class="nav-link admin-link" routerLink="/admin/bookings" routerLinkActive="active">Foglalások kezelése</a>
-            <a class="nav-link admin-link" routerLink="/admin/users" routerLinkActive="active">Felhasználók</a>
+
           }
 
           <!-- Felhasználó menü -->
@@ -70,12 +67,11 @@
         <ng-container *ngIf="isAdmin">
           <div class="mobile-divider"></div>
           <div class="mobile-admin-section">
-            <a class="mobile-link admin-link" routerLink="/admin/dashboard" (click)="closeMobileMenu()" routerLinkActive="active">
+            <a class="mobile-link admin-link" routerLink="/admin" (click)="closeMobileMenu()" routerLinkActive="active">
               <span class="admin-badge">Admin</span> Dashboard
             </a>
-            <a class="mobile-link admin-link" routerLink="/admin/rooms" (click)="closeMobileMenu()" routerLinkActive="active">Szobák kezelése</a>
-            <a class="mobile-link admin-link" routerLink="/admin/bookings" (click)="closeMobileMenu()" routerLinkActive="active">Foglalások kezelése</a>
-            <a class="mobile-link admin-link" routerLink="/admin/users" (click)="closeMobileMenu()" routerLinkActive="active">Felhasználók</a>
+            <a class="mobile-link admin-link" routerLink="/admin/rooms" (click)="closeMobileMenu()" routerLinkActive="active">Szobák</a>
+            <a class="mobile-link admin-link" routerLink="/admin/bookings" (click)="closeMobileMenu()" routerLinkActive="active">Foglalások</a>
           </div>
         </ng-container>
 

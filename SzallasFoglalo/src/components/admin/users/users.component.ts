@@ -11,8 +11,8 @@ interface User {
   password: string;
   role: string;
   createdAt: string;
-  bookingCount?: number;
-  isActive?: boolean;
+  bookingCount: number;
+  isActive: boolean;   
 }
 
 @Component({
@@ -48,24 +48,33 @@ export class UsersComponent implements OnInit {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      role: ['user', Validators.required]
+      role: ['user', Validators.required],
+      isActive: [true]
     });
   }
 
   async loadUsers(): Promise<void> {
-    const response = await this.apiService.selectAll('users');
-    if (response.status === 200) {
-      // Foglalások számának betöltése
-      const bookingsResponse = await this.apiService.selectAll('bookings');
-      const bookings = bookingsResponse.status === 200 ? bookingsResponse.data : [];
-      
-      this.users = response.data.map((user: any) => ({
-        ...user,
-        isActive: true, // Alapértelmezett érték, ha nincs az adatbázisban
-        bookingCount: bookings.filter((b: any) => b.userId === user.id).length
-      }));
-      
-      this.filterUsers();
+    try {
+      const response = await this.apiService.selectAll('users');
+      if (response.status === 200) {
+        // Foglalások számának betöltése
+        const bookingsResponse = await this.apiService.selectAll('bookings');
+        const bookings = bookingsResponse.status === 200 ? bookingsResponse.data : [];
+        
+        this.users = response.data.map((user: any) => ({
+          ...user,
+          // Ha van isActive mező, használjuk, különben alapértelmezett true
+          isActive: user.isActive !== undefined ? (user.isActive === 1) : true,
+          // Foglalások száma - mindig számoljuk, lehet 0 is
+          bookingCount: bookings.filter((b: any) => b.userId === user.id).length
+        }));
+        
+        console.log('Betöltött felhasználók:', this.users);
+        this.filterUsers();
+      }
+    } catch (error) {
+      console.error('Hiba a felhasználók betöltése során:', error);
+      alert('Hiba történt a felhasználók betöltése során!');
     }
   }
 
@@ -82,6 +91,8 @@ export class UsersComponent implements OnInit {
 
       return matchesSearch && matchesRole && matchesStatus;
     });
+    
+    console.log('Szűrt felhasználók:', this.filteredUsers);
   }
 
   viewUser(user: User): void {
@@ -91,7 +102,12 @@ export class UsersComponent implements OnInit {
 
   editUser(user: User): void {
     this.selectedUser = user;
-    this.userForm.patchValue(user);
+    this.userForm.patchValue({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive
+    });
     this.showEditModal = true;
   }
 
@@ -103,46 +119,60 @@ export class UsersComponent implements OnInit {
   closeEditModal(): void {
     this.showEditModal = false;
     this.selectedUser = null;
-    this.userForm.reset();
+    this.userForm.reset({ role: 'user', isActive: true });
   }
 
   async saveUser(): Promise<void> {
     if (this.userForm.valid && this.selectedUser) {
-      const userData = this.userForm.value;
+      const userData = {
+        name: this.userForm.value.name,
+        email: this.userForm.value.email,
+        role: this.userForm.value.role,
+        isActive: this.userForm.value.isActive ? 1 : 0
+      };
       
-      const response = await this.apiService.update('users', this.selectedUser.id, userData);
-      if (response.status === 200) {
-        alert('Felhasználó sikeresen frissítve!');
-        await this.loadUsers();
-      } else {
-        alert(response.message || 'Hiba történt a mentés során!');
+      try {
+        const response = await this.apiService.update('users', this.selectedUser.id, userData);
+        if (response.status === 200) {
+          alert('Felhasználó sikeresen frissítve!');
+          await this.loadUsers();
+          this.closeEditModal();
+        } else {
+          alert(response.message || 'Hiba történt a mentés során!');
+        }
+      } catch (error) {
+        console.error('Mentési hiba:', error);
+        alert('Hiba történt a mentés során!');
       }
-      
-      this.closeEditModal();
     }
   }
 
   async toggleUserStatus(user: User): Promise<void> {
     const action = user.isActive ? 'deaktiválni' : 'aktiválni';
     if (confirm(`Biztosan ${action} szeretnéd ${user.name} fiókját?`)) {
-      user.isActive = !user.isActive;
+      const newStatus = !user.isActive;
       
-      // Ha van status mező az adatbázisban
-      const response = await this.apiService.update('users', user.id, { 
-        status: user.isActive ? 1 : 0 
-      });
-      
-      if (response.status === 200) {
-        alert(`Felhasználó sikeresen ${user.isActive ? 'aktiválva' : 'deaktiválva'}!`);
-        this.filterUsers();
-      } else {
-        user.isActive = !user.isActive; // Visszaállítjuk
-        alert(response.message || 'Hiba történt a művelet során!');
+      try {
+        const response = await this.apiService.update('users', user.id, { 
+          isActive: newStatus ? 1 : 0 
+        });
+        
+        if (response.status === 200) {
+          user.isActive = newStatus;
+          alert(`Felhasználó sikeresen ${newStatus ? 'aktiválva' : 'deaktiválva'}!`);
+          this.filterUsers();
+        } else {
+          alert(response.message || 'Hiba történt a művelet során!');
+        }
+      } catch (error) {
+        console.error('Státusz váltási hiba:', error);
+        alert('Hiba történt a művelet során!');
       }
     }
   }
 
   getInitials(name: string): string {
+    if (!name) return '?';
     return name
       .split(' ')
       .map(n => n[0])

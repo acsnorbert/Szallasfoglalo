@@ -6,4 +6,7 @@ export interface User {
     confirm?: string;
     role: string;
     reg?: string;
+    isActive?: boolean;  
+    bookingCount? : number;
+    createdAt?: string;
   }
