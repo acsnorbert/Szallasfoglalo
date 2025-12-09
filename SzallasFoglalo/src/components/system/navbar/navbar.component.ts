@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../../services/auth';
 import { NavItem } from '../../../interfaces/navItem';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
@@ -15,88 +15,39 @@ export class NavbarComponent implements OnInit {
   isLoggedIn = false;
   isAdmin = false;
   loggedUserName = '';
+  mobileMenuOpen = false;
 
   constructor(
     private auth: AuthService,
-  ){}
+    private router: Router
+  ) {}
 
-  navItems:NavItem[] = [];
-
-  
   ngOnInit(): void {
     this.auth.isLoggedIn$.subscribe(res => {
       this.isLoggedIn = res;
       this.isAdmin = this.auth.isAdmin();
-      if (this.isLoggedIn){
-        this.loggedUserName = this.auth.loggedUser()[0].name;
-
-          this.setupMenu(res);
-
+      
+      if (this.isLoggedIn) {
+        const user = this.auth.loggedUser();
+        this.loggedUserName = user ? user[0].name : '';
       } else {
         this.loggedUserName = '';
-        this.setupMenu(false);
       }
-
     });
   }
 
-  setupMenu(isLoggedIn: boolean){
-    this.navItems = [
-      {
-        name: 'Pizzalista',
-        url: 'pizzalist',
-      },
-
-      ...(isLoggedIn) ? [
-        {
-          name: 'Kosár',
-          url: 'cart',
-        },
-
-        ...(this.isAdmin) ? [
-          {
-            name: 'Pizzák kezelése',
-            url: 'pizzas',
-          },
-          {
-            name: 'Felhasználók kezelése',
-            url: 'users',
-          },
-          {
-            name: 'Rendelések kezelése',
-            url: 'orders',
-          },
-          {
-            name: 'Statisztika',
-            url: 'stats',
-          }
-        ] : [
-          {
-            name: 'Rendeléseim',
-            url: 'myorders',
-          }
-        ],
-        {
-          name: 'Profilom',
-          url: 'profile',
-        },
-        {
-          name: 'Kilépés',
-          url: 'logout',
-        },
-      ] : [
-        {
-          name: 'Regisztráció',
-          url: 'registration',
-        },
-        {
-          name: 'Belépés',
-          url: 'login',
-        },
-      ]
-
-    ]
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+  }
+
+  handleLogout(): void {
+    this.auth.logout();
+    this.closeMobileMenu();
+    this.router.navigate(['/landing']);
+  }
 
 }
