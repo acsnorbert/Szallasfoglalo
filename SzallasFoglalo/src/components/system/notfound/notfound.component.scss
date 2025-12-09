@@ -1,0 +1,54 @@
+.not-found-container {
+    width: 100%;
+    height: 100vh;
+    background: #111; // mélyfekete háttér
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .not-found-content {
+    text-align: center;
+    max-width: 500px;
+    color: #fff; // fehér szöveg
+  }
+  
+  .error-code {
+    font-size: 120px;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(90deg, #d4af37, #f0d98a); // arany gradient
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .error-title {
+    font-size: 28px;
+    margin-top: 10px;
+    color: #f0d98a; // halványabb arany
+    letter-spacing: 1px;
+  }
+  
+  .error-message {
+    font-size: 16px;
+    color: #ccc;
+    margin: 15px 0 30px;
+  }
+  
+  .home-button {
+    display: inline-block;
+    padding: 12px 28px;
+    border: 2px solid #d4af37;
+    color: #d4af37;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 16px;
+    transition: 0.3s ease;
+  
+    &:hover {
+      background: #d4af37;
+      color: #111;
+    }
+  }
+  

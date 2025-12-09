@@ -5,6 +5,7 @@ import { LandingComponent } from '../components/system/landing-page/landing-page
 import { RegistrationComponent } from '../components/user/registration/registration.component';
 import { ProfileComponent } from '../components/user/profile/profile.component';
 import { AdminDashboardComponent } from '../components/admin/admin-dashboard/admin-dashboard';
+import { NotfoundComponent } from '../components/system/notfound/notfound.component';
 
 export const routes: Routes = [
 
@@ -18,5 +19,6 @@ export const routes: Routes = [
         children: [
           
         ]
-      }
+      },
+      { path: '**', component: NotfoundComponent }
 ];
