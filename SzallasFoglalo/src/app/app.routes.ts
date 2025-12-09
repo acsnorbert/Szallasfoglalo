@@ -10,6 +10,8 @@ import { NotfoundComponent } from '../components/system/notfound/notfound.compon
 export const routes: Routes = [
 
     { path: 'landing', component: LandingComponent },
+    { path: 'admin', component: AdminDashboardComponent },
+
     { path: '', component: LandingComponent },
     { path: 'login', component: LoginComponent },
     { path: 'registration', component: RegistrationComponent },
