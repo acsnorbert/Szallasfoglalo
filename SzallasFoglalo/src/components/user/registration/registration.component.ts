@@ -1,59 +1,64 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { User } from '../../../interfaces/user';
+import { ApiService } from '../../../services/api';
+import { MessageService } from '../../../services/message';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink,FormsModule],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
-export class RegistrationComponent implements OnInit {
-  registerForm!: FormGroup;
-  submitted = false;
+export class RegistrationComponent{
+  
+  acceptTerms: boolean = false;
 
-  constructor(private formBuilder: FormBuilder) {}
+  newUser: User = {
+    name: '',
+    email: '',
+    password: '',
+    role: 'user',
+  };
 
-  ngOnInit(): void {
-    this.registerForm = this.formBuilder.group({
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.pattern(/^[0-9\s\-\+\(\)]*$/)]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-      terms: [false, Validators.requiredTrue]
-    });
-  }
+  constructor(
+    private api: ApiService,
+    private message: MessageService,
+    private router: Router) {}
 
-  get f() {
-    return this.registerForm.controls;
-  }
 
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.registerForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched || this.submitted));
-  }
-
-  onSubmit(): void {
-    this.submitted = true;
-
-    if (this.registerForm.invalid) {
-      return;
+    registration() {
+      if (!this.acceptTerms) {
+        this.message.show('danger', 'Hiba', 'El kell fogadnod a szabályzatot!');
+        return;
+      }
+  
+      this.api.registration('users', this.newUser).then(res => {
+        if (res.status == 500){
+          this.message.show('danger', 'Hiba', res.message);
+          return;
+        }
+  
+        let data = {
+          "template": "registration",
+          "to": this.newUser.email,
+          "subject": "Sikeres regisztráció",
+          "data": {
+              "username": this.newUser.name,
+              "email": this.newUser.email,
+              "password": this.newUser.password,
+              "url": "http://localhost:4200"
+          }
+      }
+  
+        /*this.api.sendmail(data);*/
+  
+        this.message.show('success', 'Ok', res.message);
+        this.router.navigate(['/login']);
+      })
     }
-
-    const formData = {
-      firstName: this.registerForm.value.firstName,
-      lastName: this.registerForm.value.lastName,
-      email: this.registerForm.value.email,
-      phone: this.registerForm.value.phone,
-      password: this.registerForm.value.password,
-      terms: this.registerForm.value.terms
-    };
-
-    console.log('Register form data:', formData);
-    // Itt implementálod a regisztrációs logikát
-  }
+  
 }

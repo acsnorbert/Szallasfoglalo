@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import {ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { User } from '../../../interfaces/user';
+import { ApiService } from '../../../services/api';
+import { MessageService } from '../../../services/message';
+import { AuthService } from '../../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -10,43 +14,42 @@ import { RouterLink } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
-  loginForm!: FormGroup;
-  submitted = false;
+export class LoginComponent{
 
-  constructor(private formBuilder: FormBuilder) {}
+  user:User= {
+    name: '',
+    email: '',
+    password: '',
+    role: '',
+  }
 
-  ngOnInit(): void {
-    this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      remember: [false]
+  rememberMe: boolean = false;
+
+  constructor(
+    private api: ApiService,
+    private message: MessageService,
+    private auth: AuthService,
+    private router: Router
+  ) {}
+
+  login(){
+    this.api.login('users', this.user).then(res => {
+      if (res.status == 500){
+        this.message.show('danger', 'Hiba', res.message);
+        return;
+      }
+
+      // maradjon bejelentkezve vagy sem
+      if (this.rememberMe){
+        this.auth.storeUser(JSON.stringify(res.data));
+      }
+
+      this.auth.login(JSON.stringify(res.data));
+      this.router.navigate(['/accomodations']);
+
     });
   }
+  
 
-  get f() {
-    return this.loginForm.controls;
-  }
-
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.loginForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched || this.submitted));
-  }
-
-  onSubmit(): void {
-    this.submitted = true;
-
-    if (this.loginForm.invalid) {
-      return;
-    }
-
-    const formData = {
-      email: this.loginForm.value.email,
-      password: this.loginForm.value.password,
-      remember: this.loginForm.value.remember
-    };
-
-    console.log('Login form data:', formData);
-    // Itt implementálod az autentikációs logikát
-  }
+  
 }
