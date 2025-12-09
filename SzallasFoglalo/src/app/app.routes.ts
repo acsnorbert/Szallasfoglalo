@@ -8,7 +8,7 @@ import { AdminDashboardComponent } from '../components/admin/admin-dashboard/adm
 
 export const routes: Routes = [
 
-    { path: '', component: LandingComponent },
+    { path: 'landing', component: LandingComponent },
     { path: 'login', component: LoginComponent },
     { path: 'registration', component: RegistrationComponent },
     { path: 'profile', component: ProfileComponent },
