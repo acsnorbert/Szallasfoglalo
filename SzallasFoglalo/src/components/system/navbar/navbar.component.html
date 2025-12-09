@@ -1,30 +1,88 @@
 <nav class="nav-glass">
   <div class="container">
     <div class="nav-content">
-    <div class="logo">
-      <a routerLink="/landing" style="text-decoration: none; color: inherit;">ALMARIS</a>
-    </div>
-      <div class="nav-links">
-        <a class="nav-link" routerLink="/landing">Kezdőlap</a>
-        <a class="nav-link">Szobák</a>
-        <a class="nav-link">Foglalás</a>
-        <a class="nav-link" routerLink="/admin">Admin Panel</a>
-        <a class="nav-link" routerLink="/login">Bejelentkezés</a>
-        <a class="nav-link" routerLink="/registration">Regisztráció</a>
+      <!-- Logo -->
+      <div class="logo">
+        <a routerLink="/landing" style="text-decoration: none; color: inherit;">ALMARIS</a>
       </div>
-      
-      <button class="mobile-menu-btn">
+
+      <!-- Desktop Navigation -->
+      <div class="nav-links">
+        <!-- Mindig elérhető linkek -->
+        <a class="nav-link" routerLink="/landing" routerLinkActive="active">Kezdőlap</a>
+        <a class="nav-link" routerLink="/rooms" routerLinkActive="active">Szobák</a>
+
+        <!-- Ha nincs bejelentkezve -->
+        @if (!isLoggedIn) {
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">Bejelentkezés</a>
+          <a class="nav-link nav-link-highlight" routerLink="/registration" routerLinkActive="active">Regisztráció</a>
+        }
+
+        <!-- Ha be van jelentkezve -->
+        @if (isLoggedIn) {
+          <!-- Csak normál felhasználónak jelenik meg -->
+          @if (!isAdmin) {
+            <a class="nav-link" routerLink="/bookings" routerLinkActive="active">Foglalásaim</a>
+          }
+          
+          <!-- Admin menüpontok -->
+          @if (isAdmin) {
+            <div class="nav-divider"></div>
+            <a class="nav-link admin-link" routerLink="/admin/dashboard" routerLinkActive="active">
+              <span class="admin-badge">Admin</span> Panel
+            </a>
+            <a class="nav-link admin-link" routerLink="/admin/rooms" routerLinkActive="active">Szobák kezelése</a>
+            <a class="nav-link admin-link" routerLink="/admin/bookings" routerLinkActive="active">Foglalások kezelése</a>
+            <a class="nav-link admin-link" routerLink="/admin/users" routerLinkActive="active">Felhasználók</a>
+          }
+
+          <!-- Felhasználó menü -->
+          <div class="user-menu">
+            <a class="nav-link" routerLink="/profile" routerLinkActive="active">Profilom</a>
+          </div>
+          <button class="nav-link logout-btn" (click)="handleLogout()">Kilépés</button>
+        }
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
         <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
     </div>
-    <div class="mobile-menu">
-      <a class="mobile-link" routerLink="/landing" >Kezdőlap</a>
-      <a class="mobile-link">Szobák</a>
-      <a class="mobile-link">Foglalás</a>
-      <a class="mobile-link" routerLink="/login">Bejelentkezés</a>
-      <a class="mobile-link" routerLink="/registration">Regisztráció</a>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-menu" [class.open]="mobileMenuOpen">
+      <a class="mobile-link" routerLink="/landing" (click)="closeMobileMenu()" routerLinkActive="active">Kezdőlap</a>
+      <a class="mobile-link" routerLink="/rooms" (click)="closeMobileMenu()" routerLinkActive="active">Szobák</a>
+
+      <ng-container *ngIf="!isLoggedIn">
+        <div class="mobile-divider"></div>
+        <a class="mobile-link" routerLink="/login" (click)="closeMobileMenu()" routerLinkActive="active">Bejelentkezés</a>
+        <a class="mobile-link mobile-link-highlight" routerLink="/registration" (click)="closeMobileMenu()" routerLinkActive="active">Regisztráció</a>
+      </ng-container>
+
+      <ng-container *ngIf="isLoggedIn">
+        <div class="mobile-divider"></div>
+        <a class="mobile-link" routerLink="/bookings" (click)="closeMobileMenu()" routerLinkActive="active">Foglalásaim</a>
+
+        <ng-container *ngIf="isAdmin">
+          <div class="mobile-divider"></div>
+          <div class="mobile-admin-section">
+            <a class="mobile-link admin-link" routerLink="/admin/dashboard" (click)="closeMobileMenu()" routerLinkActive="active">
+              <span class="admin-badge">Admin</span> Dashboard
+            </a>
+            <a class="mobile-link admin-link" routerLink="/admin/rooms" (click)="closeMobileMenu()" routerLinkActive="active">Szobák kezelése</a>
+            <a class="mobile-link admin-link" routerLink="/admin/bookings" (click)="closeMobileMenu()" routerLinkActive="active">Foglalások kezelése</a>
+            <a class="mobile-link admin-link" routerLink="/admin/users" (click)="closeMobileMenu()" routerLinkActive="active">Felhasználók</a>
+          </div>
+        </ng-container>
+
+        <div class="mobile-divider"></div>
+        <a class="mobile-link" routerLink="/profile" (click)="closeMobileMenu()" routerLinkActive="active">Profilom</a>
+        <button class="mobile-link logout-btn" (click)="handleLogout(); closeMobileMenu()">Kilépés</button>
+      </ng-container>
     </div>
   </div>
 </nav>
