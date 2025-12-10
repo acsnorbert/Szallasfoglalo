@@ -1,42 +1,200 @@
-<div class="profile-container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="profile-card p-5 rounded-4 shadow-lg">
-      <div class="text-center mb-4">
-        <h1 class="logo">JM-ÁN Szállásfoglaló</h1>
-        <p class="text-gold">Profil beállítások</p>
-      </div>
-  
-      <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="username" placeholder="Username" [(ngModel)]="user.name">
-        <label for="username">Felhasználónév:</label>
-      </div>
-  
-      <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="currentPassword" placeholder="Current Password" [(ngModel)]="user.currentPassword">
-        <label for="currentPassword">Jelenlegi jelszó:</label>
-      </div>
-  
-      <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="newPassword" placeholder="New Password" [(ngModel)]="user.newPassword">
-        <label for="newPassword">Új jelszó:</label>
-      </div>
-  
-      <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm New Password" [(ngModel)]="user.confirmPassword">
-        <label for="confirmPassword">Új jelszó megerősítése:</label>
-      </div>
-  
-      <div class="d-grid gap-3">
-        <button class="btn btn-gold btn-lg" (click)="updateProfile()">
-          Mentés
-        </button>
-        <button class="btn btn-outline-light btn-lg" routerLink="/login">
-          Kijelentkezés
-        </button>
-      </div>
-  
-      <div class="text-center mt-4 text-muted small">
-        &copy; JM-ÁN Szállásfoglaló
-      </div>
+<div class="profile-container">
+  <div class="profile-wrapper">
+    
+    <!-- Header -->
+    <div class="profile-header">
+      <h1 class="profile-title">Profil Beállítások</h1>
+      <p class="profile-subtitle">Módosítsd a személyes adataidat és jelszavadat</p>
     </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="success-message">
+      <span>✓</span> {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">
+      <span>✕</span> {{ errorMessage }}
+    </div>
+
+    <!-- Profile Section -->
+    <div class="profile-section">
+      <h2 class="section-title">Személyes Adatok</h2>
+      
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
+        
+        <!-- Name Field -->
+        <div class="form-group">
+          <label class="form-label">Teljes Név</label>
+          <input 
+            type="text" 
+            class="form-input"
+            formControlName="name"
+            placeholder="Írd be a nevedet"
+            [class.input-error]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+          />
+          <span 
+            *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched" 
+            class="error-text"
+          >
+            A név legalább 3 karakter hosszú kell legyen!
+          </span>
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label class="form-label">Email Cím</label>
+          <input 
+            type="email" 
+            class="form-input"
+            formControlName="email"
+            placeholder="email@example.com"
+            [class.input-error]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+          />
+          <span 
+            *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched" 
+            class="error-text"
+          >
+            {{ getEmailErrorMessage() }}
+          </span>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="submit-button"
+          [disabled]="profileForm.invalid || isLoading"
+        >
+          <span *ngIf="!isLoading">Profil Frissítése</span>
+          <span *ngIf="isLoading" class="loading-spinner">Frissítés...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Password Section -->
+    <div class="profile-section">
+      <h2 class="section-title">Jelszó Módosítása</h2>
+      
+      <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()" class="password-form">
+        
+        <!-- Current Password -->
+        <div class="form-group">
+          <label class="form-label">Jelenlegi Jelszó</label>
+          <div class="password-input-wrapper">
+            <input 
+              [type]="showCurrentPassword ? 'text' : 'password'" 
+              class="form-input"
+              formControlName="currentPassword"
+              placeholder="Írd be a jelenlegi jelszavadat"
+              [class.input-error]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+            />
+            <button 
+              type="button" 
+              class="password-toggle"
+              (click)="togglePasswordVisibility('current')"
+              tabindex="-1"
+            >
+              {{ showCurrentPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <span 
+            *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched" 
+            class="error-text"
+          >
+            A jelenlegi jelszó megadása kötelező!
+          </span>
+        </div>
+
+        <!-- New Password -->
+        <div class="form-group">
+          <label class="form-label">Új Jelszó</label>
+          <div class="password-input-wrapper">
+            <input 
+              [type]="showNewPassword ? 'text' : 'password'" 
+              class="form-input"
+              formControlName="newPassword"
+              placeholder="Írd be az új jelszavadat"
+              [class.input-error]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
+            />
+            <button 
+              type="button" 
+              class="password-toggle"
+              (click)="togglePasswordVisibility('new')"
+              tabindex="-1"
+            >
+              {{ showNewPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <span 
+            *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched" 
+            class="error-text"
+          >
+            {{ getPasswordErrorMessage() }}
+          </span>
+          <div class="password-requirements">
+            <p>A jelszó követelményei:</p>
+            <ul>
+              <li [class.met]="passwordForm.get('newPassword')?.value && passwordForm.get('newPassword')?.value.length >= 8">
+                ✓ Legalább 8 karakter
+              </li>
+              <li [class.met]="passwordForm.get('newPassword')?.value && /[a-z]/.test(passwordForm.get('newPassword')?.value)">
+                ✓ Tartalmaz kisbetűt
+              </li>
+              <li [class.met]="passwordForm.get('newPassword')?.value && /[A-Z]/.test(passwordForm.get('newPassword')?.value)">
+                ✓ Tartalmaz nagybetűt
+              </li>
+              <li [class.met]="passwordForm.get('newPassword')?.value && /\d/.test(passwordForm.get('newPassword')?.value)">
+                ✓ Tartalmaz számot
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label class="form-label">Jelszó Megerősítése</label>
+          <div class="password-input-wrapper">
+            <input 
+              [type]="showConfirmPassword ? 'text' : 'password'" 
+              class="form-input"
+              formControlName="confirmPassword"
+              placeholder="Ismételd meg az új jelszavadat"
+              [class.input-error]="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched"
+            />
+            <button 
+              type="button" 
+              class="password-toggle"
+              (click)="togglePasswordVisibility('confirm')"
+              tabindex="-1"
+            >
+              {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <span 
+            *ngIf="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched" 
+            class="error-text"
+          >
+            A jelszó megerősítése kötelező!
+          </span>
+          <span 
+            *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmPassword')?.touched" 
+            class="error-text"
+          >
+            A jelszavak nem egyeznek!
+          </span>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="submit-button"
+          [disabled]="passwordForm.invalid || isLoading"
+        >
+          <span *ngIf="!isLoading">Jelszó Módosítása</span>
+          <span *ngIf="isLoading" class="loading-spinner">Módosítás...</span>
+        </button>
+      </form>
+    </div>
+
   </div>
-  
+</div>
