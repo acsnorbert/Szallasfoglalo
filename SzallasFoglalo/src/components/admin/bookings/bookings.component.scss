@@ -675,6 +675,8 @@
     display: flex;
     flex-direction: column;
     animation: slideUp 0.3s ease;
+    margin-top: 2%;
+    left: 30%;
   
     &.modal-large {
       max-width: 800px;

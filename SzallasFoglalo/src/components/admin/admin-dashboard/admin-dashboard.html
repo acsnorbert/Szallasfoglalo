@@ -71,7 +71,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
         </svg>
-        <span *ngIf="!sidebarCollapsed">Kijelentkezés</span>
+        <span *ngIf="!sidebarCollapsed">Admin panel kilépés</span>
       </button>
     </div>
   </aside>
@@ -96,6 +96,7 @@
     </header>
 
     <div class="content-area">
+      <!-- DASHBOARD TAB -->
       <div *ngIf="activeTab === 'dashboard'" class="tab-content">
         <div class="stats-grid">
           <div class="stat-card">
@@ -180,18 +181,22 @@
         </div>
       </div>
 
-      <div *ngIf="activeTab === 'accommodations'">
+      <!-- ACCOMMODATIONS TAB - JAVÍTOTT: Mindig renderelve van, csak elrejtve -->
+      <div [style.display]="activeTab === 'accommodations' ? 'block' : 'none'">
         <app-accommodations></app-accommodations>
       </div>
 
-      <div *ngIf="activeTab === 'bookings'">
+      <!-- BOOKINGS TAB - JAVÍTOTT: Mindig renderelve van, csak elrejtve -->
+      <div [style.display]="activeTab === 'bookings' ? 'block' : 'none'">
         <app-bookings></app-bookings>
       </div>
 
-      <div *ngIf="activeTab === 'users'">
+      <!-- USERS TAB - JAVÍTOTT: Mindig renderelve van, csak elrejtve -->
+      <div [style.display]="activeTab === 'users' ? 'block' : 'none'">
         <app-users></app-users>
       </div>
 
+      <!-- SETTINGS TAB -->
       <div *ngIf="activeTab === 'settings'" class="tab-content">
         <div class="settings-card">
           <h3 class="card-title">Árparaméterek</h3>
