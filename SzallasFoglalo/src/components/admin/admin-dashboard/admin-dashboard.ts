@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { AccommodationsComponent } from "../accommodations/accommodations.component";
 import { BookingsComponent } from "../bookings/bookings.component";
 import { UsersComponent } from "../users/users.component";
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../services/api';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -13,7 +13,7 @@ import { ApiService } from '../../../services/api';
   styleUrls: ['./admin-dashboard.scss'],
   standalone: true
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, AfterViewInit {
   sidebarCollapsed = false;
   activeTab: string = 'dashboard';
   
@@ -24,11 +24,26 @@ export class AdminDashboardComponent implements OnInit {
   monthlyRevenue = 0;
   
   recentBookings: any[] = [];
+  
+  // Flag az első betöltéshez
+  private isInitialLoad = true;
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   async ngOnInit(): Promise<void> {
+    // Dashboard adatok betöltése azonnal
     await this.loadDashboardData();
+    this.cdr.detectChanges();
+  }
+
+  ngAfterViewInit(): void {
+    // Biztosítjuk, hogy a dashboard látható legyen
+    this.isInitialLoad = false;
+    this.cdr.detectChanges();
   }
 
   async loadDashboardData(): Promise<void> {
@@ -67,7 +82,9 @@ export class AdminDashboardComponent implements OnInit {
       if (usersResponse.status === 200) {
         this.totalUsers = usersResponse.data.length;
       }
-
+      
+      // Változások detektálása
+      this.cdr.detectChanges();
     } catch (error) {
       console.error('Hiba a dashboard adatok betöltése során:', error);
     }
@@ -99,7 +116,12 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   setActiveTab(tab: string) {
+
     this.activeTab = tab;
+    this.cdr.detectChanges();
+    if (tab === 'dashboard') {
+      this.loadDashboardData();
+    }
   }
 
   getPageTitle(): string {
@@ -114,9 +136,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   logout() {
-    // TODO: Logout logika implementálása
-    console.log('Kijelentkezés...');
-    // localStorage.removeItem('user');
-    // router.navigate(['/login']);
+    console.log('Kijelentkezés sikeres');
+    this.router.navigate(['/']);
   }
 }

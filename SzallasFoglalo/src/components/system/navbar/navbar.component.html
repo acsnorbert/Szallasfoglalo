@@ -10,7 +10,7 @@
       <div class="nav-links">
         <!-- Mindig elérhető linkek -->
         <a class="nav-link" routerLink="/landing" routerLinkActive="active">Kezdőlap</a>
-        <a class="nav-link" routerLink="/rooms" routerLinkActive="active">Szobák</a>
+        <a class="nav-link" routerLink="/accommodation" routerLinkActive="active">Szobák</a>
 
         <!-- Ha nincs bejelentkezve -->
         @if (!isLoggedIn) {
@@ -52,7 +52,7 @@
     <!-- Mobile Navigation -->
     <div class="mobile-menu" [class.open]="mobileMenuOpen">
       <a class="mobile-link" routerLink="/landing" (click)="closeMobileMenu()" routerLinkActive="active">Kezdőlap</a>
-      <a class="mobile-link" routerLink="/rooms" (click)="closeMobileMenu()" routerLinkActive="active">Szobák</a>
+      <a class="mobile-link" routerLink="/accommodation" (click)="closeMobileMenu()" routerLinkActive="active">Szobák</a>
 
       <ng-container *ngIf="!isLoggedIn">
         <div class="mobile-divider"></div>
@@ -70,7 +70,7 @@
             <a class="mobile-link admin-link" routerLink="/admin" (click)="closeMobileMenu()" routerLinkActive="active">
               <span class="admin-badge">Admin</span> Dashboard
             </a>
-            <a class="mobile-link admin-link" routerLink="/admin/rooms" (click)="closeMobileMenu()" routerLinkActive="active">Szobák</a>
+            <a class="mobile-link admin-link" routerLink="/admin/accommodation" (click)="closeMobileMenu()" routerLinkActive="active">Szobák</a>
             <a class="mobile-link admin-link" routerLink="/admin/bookings" (click)="closeMobileMenu()" routerLinkActive="active">Foglalások</a>
           </div>
         </ng-container>
