@@ -11,6 +11,7 @@
         <!-- Mindig elérhető linkek -->
         <a class="nav-link" routerLink="/landing" routerLinkActive="active">Kezdőlap</a>
         <a class="nav-link" routerLink="/accommodation" routerLinkActive="active">Szobák</a>
+        <a class="nav-link" routerLink="/booking" routerLinkActive="active">Foglalás</a>
 
         <!-- Ha nincs bejelentkezve -->
         @if (!isLoggedIn) {
@@ -21,9 +22,7 @@
         <!-- Ha be van jelentkezve -->
         @if (isLoggedIn) {
           <!-- Csak normál felhasználónak jelenik meg -->
-          @if (!isAdmin) {
-            <a class="nav-link" routerLink="/bookings" routerLinkActive="active">Foglalásaim</a>
-          }
+          
           
           <!-- Admin menüpontok -->
           @if (isAdmin) {
@@ -62,7 +61,7 @@
 
       <ng-container *ngIf="isLoggedIn">
         <div class="mobile-divider"></div>
-        <a class="mobile-link" routerLink="/bookings" (click)="closeMobileMenu()" routerLinkActive="active">Foglalásaim</a>
+        <a class="mobile-link" routerLink="/booking" (click)="closeMobileMenu()" routerLinkActive="active">Foglalásaim</a>
 
         <ng-container *ngIf="isAdmin">
           <div class="mobile-divider"></div>
@@ -71,7 +70,7 @@
               <span class="admin-badge">Admin</span> Dashboard
             </a>
             <a class="mobile-link admin-link" routerLink="/admin/accommodation" (click)="closeMobileMenu()" routerLinkActive="active">Szobák</a>
-            <a class="mobile-link admin-link" routerLink="/admin/bookings" (click)="closeMobileMenu()" routerLinkActive="active">Foglalások</a>
+            <a class="mobile-link admin-link" routerLink="/admin/booking" (click)="closeMobileMenu()" routerLinkActive="active">Foglalások</a>
           </div>
         </ng-container>
 
