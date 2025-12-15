@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Dec 09. 12:06
+-- Létrehozás ideje: 2025. Dec 15. 08:41
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -106,6 +106,16 @@ CREATE TABLE `bookings` (
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `bookings`
+--
+
+INSERT INTO `bookings` (`id`, `userId`, `accommodationId`, `startDate`, `endDate`, `persons`, `totalPrice`, `status`, `createdAt`) VALUES
+(1, 53, 1, '2025-06-10', '2025-06-13', 2, 75000, 1, '2025-12-15 07:40:59'),
+(2, 54, 2, '2025-05-20', '2025-05-22', 2, 36000, 1, '2025-12-15 07:40:59'),
+(3, 55, 3, '2025-07-01', '2025-07-05', 5, 180000, 1, '2025-12-15 07:40:59'),
+(4, 56, 4, '2025-08-15', '2025-08-18', 4, 66000, 1, '2025-12-15 07:40:59');
+
 -- --------------------------------------------------------
 
 --
@@ -127,57 +137,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `isActive`, `createdAt`) VALUES
-(1, 'reiciendis', 'bakos.jenő@example.net', 'fb079332fbda4ff8dc655740bb2c3bcd640011f3', '', 1, '2000-12-03 22:13:49'),
-(2, 'numquam', 'ejakab@example.org', '8e9978fcbf36a028e0a1eb4df2e3628d57120bba', '', 1, '2013-04-05 02:51:37'),
-(3, 'consequatur', 'ramóna64@example.net', '3939aab51b38ab2d612b26124bd5831ff0535a0f', '', 1, '2001-10-31 02:57:27'),
-(4, 'quia', 'zsombor80@example.net', '61126e6f80db3e60642c042d82ae9b1b52ee2e27', '', 1, '2009-04-20 16:27:26'),
-(5, 'aut', 'richárd.sipos@example.org', '56e304619d9552e1bbe5694a30d09f648e058b17', '', 1, '2000-09-06 15:22:47'),
-(6, 'quaerat', 'lbálint@example.com', '583ce940495d98fba9e095ff060be8343613ab5f', '', 1, '1989-10-08 14:15:38'),
-(7, 'dolorem', 'rlukács@example.net', '16644aa5baeedd4aecaa64a03bb776631e621418', '', 1, '1995-05-23 23:32:47'),
-(8, 'inventore', 'kerekes.maja@example.org', 'b208716541df68eaa690dbd6f83b224898b09476', '', 1, '1999-12-08 14:37:22'),
-(9, 'praesentium', 'nemes.antal@example.com', '3117dfce274f0cecb2ced4af89ded60e7655a3ef', '', 1, '1997-04-28 11:02:35'),
-(10, 'maxime', 'török.zsóka@example.net', 'd447e17ef700e9fcf121a7ef1e282520defaa50c', '', 1, '2000-08-29 05:56:48'),
-(11, 'ducimus', 'andrea76@example.net', 'ffe0ea03f2af80eb1b44ec8da90f47f35c662df8', '', 1, '1979-03-21 06:14:28'),
-(12, 'et', 'boróka.kocsis@example.org', 'fe65036161ae65a56be71bfbab387f6450bfd8b7', '', 1, '1971-09-24 11:16:23'),
-(13, 'sit', 'gál.gabriella@example.net', 'b8baeba60c15eeb234c9753bfb5803e7a6bc49d7', '', 1, '2010-04-01 15:38:41'),
-(14, 'voluptatibus', 'balogh.léna@example.net', 'abce8b19eeff164d37b4a049fda01d5fce2d8dd6', '', 1, '1992-01-16 07:50:29'),
-(15, 'qui', 'mmáté@example.org', 'cbd3ed75821d8011f58b9306f25b5e83481c9abf', '', 1, '2019-12-01 21:00:06'),
-(16, 'voluptatibus', 'jános.pataki@example.org', '0bf8ebee6d054bcd8beee1a81c0ae08d1b96692d', '', 1, '2002-02-06 01:36:05'),
-(17, 'fugiat', 'takács.zsóka@example.com', '2c7600ea008b3779bf541edc19bc4ea3b2fc6d8d', '', 1, '1991-01-01 10:57:47'),
-(18, 'architecto', 'isimon@example.org', 'bb8759f685123730db93d649b2e7b7ba26589f64', '', 1, '1994-09-21 12:20:25'),
-(19, 'et', 'vsipos@example.com', '979317a579b4f33ad617534edbf17f2288ba24fa', '', 1, '2015-10-12 16:25:12'),
-(20, 'sequi', 'milla.péter@example.org', '8a82bcdfa19705472bfc37f85ddbd74508f92043', '', 1, '1978-11-09 21:38:15'),
-(21, 'nihil', 'mfekete@example.net', '5c143a044f2c57ec19f3b2f3d66e5bf6a358f6fc', '', 1, '1971-04-18 21:05:47'),
-(22, 'eos', 'dhegedűs@example.com', '78a4c0f6a92d6355d642e46b13e98be73f0a0977', '', 1, '2013-06-14 16:29:56'),
-(23, 'iusto', 'péter71@example.com', 'bba039f2cf47b9d754cae36e39aaa7ff92c0bb13', '', 1, '1986-11-20 11:36:57'),
-(24, 'quis', 'lászló98@example.org', '2d3d871bb5477643f7d4f37126cb02e308c39157', '', 1, '2003-12-25 18:07:04'),
-(25, 'quia', 'váradi.liliána@example.org', '63a1971bcf91bab01f3c47de258c551dd195d101', '', 1, '1985-06-13 15:31:58'),
-(26, 'deserunt', 'péter.marcell@example.com', 'efd7704a9299f2105aab31f36b46e46de4be4faa', '', 1, '1973-01-08 03:18:51'),
-(27, 'nulla', 'rborbély@example.net', 'bcc49c6421ff14262e8f9d8ddc85f9d51f2a113c', '', 1, '1994-07-15 01:12:02'),
-(28, 'autem', 'kis.míra@example.com', '03a07d61b9c8abb1336786775706b6a7553469b1', '', 1, '2013-02-14 10:19:47'),
-(29, 'odio', 'ádám.németh@example.net', 'fe85c01ad7c50fe991372e231187e0d669d1e375', '', 1, '2014-10-02 11:05:15'),
-(30, 'voluptas', 'kristóf.horváth@example.com', '60db96d7a9f31d24db91926b511fd3b4d50d9e33', '', 1, '2004-02-04 14:58:31'),
-(31, 'qui', 'gabriella.váradi@example.net', 'b3362e64576dde074380a20e52ee50746ab0a5f0', '', 1, '1982-12-20 06:30:16'),
-(32, 'at', 'ernő45@example.org', '1999ca39bea618f5097168494a30d22fd9b44bd3', '', 1, '2003-02-02 19:34:50'),
-(33, 'temporibus', 'qdeák@example.com', '14d1650eedf2412c20c95e7f1ed1387251c265c8', '', 1, '1975-01-30 17:37:02'),
-(34, 'voluptas', 'bognár.ramóna@example.com', '4c236e228ca90c72ab8454ee8df244741e3d545b', '', 1, '2005-07-02 10:59:30'),
-(35, 'recusandae', 'hunor72@example.com', 'fe9c8cd7d1fd1653fa99280e8337460a7559cc85', '', 1, '2013-01-17 20:02:41'),
-(36, 'recusandae', 'bfodor@example.com', '03507c92b8623217aaebade60b86a1027e0a6111', '', 1, '1990-11-01 19:35:44'),
-(37, 'repellendus', 'zfarkas@example.org', 'f598b6f22bcc7eecc15fdd2c5965739834cbc6e0', '', 1, '1977-09-17 07:57:17'),
-(38, 'et', 'dorottya16@example.net', '5c1f5996b880fc6415bbe0cc1ec9d2aee192bcde', '', 1, '2024-08-26 02:41:21'),
-(39, 'aperiam', 'somogyi.szervác@example.net', 'e29f5b80504bfc517a2848088572ab7b0fc94cb3', '', 1, '1978-05-21 00:04:24'),
-(40, 'et', 'noel.balogh@example.org', 'c739c7d6a6aefefe2dcb3a21c466d3bdce8cebbc', '', 1, '1992-08-03 04:08:00'),
-(41, 'impedit', 'horsós@example.net', '9ccfdaaa56756e09c59e558074d532a4e3b514ff', '', 1, '1975-10-19 14:51:43'),
-(42, 'quia', 'olivér77@example.org', '4abc93c8f43541e4c420209191566349f499d59f', '', 1, '1974-05-15 00:08:35'),
-(43, 'iure', 'lváradi@example.net', '576700af1c262179b2d213dde2367cb65fe69464', '', 1, '1970-12-07 16:41:51'),
-(44, 'voluptatem', 'lengyel.liza@example.org', '13ff709061efb6ee4416926e2d3200ef778e1462', '', 1, '2010-02-11 10:25:50'),
-(45, 'nesciunt', 'attila.bodnár@example.net', 'd0e6f3420cdace298c63cce3d574fca92317c5f6', '', 1, '1999-03-27 05:18:45'),
-(46, 'inventore', 'mátyás23@example.com', '6d16be6460e837e966687c8031ec5d04d20fc3c0', '', 1, '1972-12-12 19:11:13'),
-(47, 'distinctio', 'orosz.katinka@example.net', 'fa873dba68be3e2a4ee0f76207b5295929234ab0', '', 1, '1981-04-18 11:23:58'),
-(48, 'eaque', 'fhajdu@example.org', 'cdc42a5b1220afc500d0dd01eb65bb2ce654f5e9', '', 1, '1975-04-18 06:59:23'),
-(49, 'sapiente', 'valéria.faragó@example.net', '05fb6404ab0d52d51c9a406bcdd3be4aba88f450', '', 1, '2022-08-16 07:29:13'),
-(50, 'fugiat', 'kristóf73@example.net', '4c21720dcdd42a657d7a35fec295c90b9053d9d8', '', 1, '1976-04-08 23:13:48'),
-(52, 'admin', 'admin', 'f865b53623b121fd34ee5426c792e5c33af8c227', 'admin', 1, '2025-12-09 09:02:54');
+(1, 'admin', 'admin', 'f865b53623b121fd34ee5426c792e5c33af8c227', 'admin', 1, '2025-12-15 07:40:31'),
+(2, 'Kiss Ádám', 'kiss.adam@example.com', 'cbfdac6008f9cab4083784cbd1874f76618d2a97', 'user', 1, '2025-12-15 07:40:52'),
+(3, 'Nagy Eszter', 'nagy.eszter@example.com', 'cbfdac6008f9cab4083784cbd1874f76618d2a97', 'user', 1, '2025-12-15 07:40:52'),
+(4, 'Tóth Bence', 'toth.bence@example.com', 'cbfdac6008f9cab4083784cbd1874f76618d2a97', 'user', 1, '2025-12-15 07:40:52'),
+(5, 'Szabó Lilla', 'szabo.lilla@example.com', 'cbfdac6008f9cab4083784cbd1874f76618d2a97', 'user', 1, '2025-12-15 07:40:52');
 
 --
 -- Indexek a kiírt táblákhoz
@@ -227,13 +191,13 @@ ALTER TABLE `accommodation_images`
 -- AUTO_INCREMENT a táblához `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
