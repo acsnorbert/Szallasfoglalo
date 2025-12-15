@@ -9,7 +9,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-top: 3rem;
   
     .header-left {
       .section-title {
@@ -156,8 +156,6 @@
         line-height: 1.6;
         margin-bottom: 1rem;
         display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
         overflow: hidden;
       }
   
