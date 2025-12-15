@@ -4,18 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api';
 import { environment } from '../../../environments/environment';
 
-interface Accommodation {
-  id: number;
-  name: string;
-  address: string;
-  shortDescription: string;
-  longDescription: string;
-  maxCapacity: number;
-  basePrice: number;
-  isActive: boolean;
-  images: string[];
-  rooms?: any[];
-}
+
 
 interface FilterOptions {
   location: string;

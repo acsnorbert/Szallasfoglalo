@@ -172,14 +172,59 @@
             </div>
           </div>
 
-          <div class="dashboard-card">
-            <h3 class="card-title">Naptár</h3>
-            <div class="calendar-placeholder">
-              <p>Foglaltsági naptár előnézet</p>
-            </div>
-          </div>
+
+          <!--Statisztika-->
+          <div class="admin-dashboard">
+  <h1>Admin Dashboard</h1>
+  
+  <div class="dashboard-grid">
+    <!-- Eladási statisztika -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>Heti Eladások</h3>
+      </div>
+      <div class="card-body">
+        <app-chart 
+          [chartType]="'line'"
+          [chartData]="salesChartData"
+          [chartOptions]="chartOptions">
+        </app-chart>
+      </div>
+    </div>
+
+    <!-- Felhasználó statisztika -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>Felhasználók</h3>
+      </div>
+      <div class="card-body">
+        <app-chart 
+          [chartType]="'doughnut'"
+          [chartData]="userChartData">
+        </app-chart>
+      </div>
+    </div>
+
+    <!-- Bevétel statisztika -->
+    <div class="dashboard-card full-width">
+      <div class="card-header">
+        <h3>Havi Bevétel</h3>
+      </div>
+      <div class="card-body">
+        <app-chart 
+          [chartType]="'bar'"
+          [chartData]="revenueChartData"
+          [chartOptions]="chartOptions">
+        </app-chart>
+      </div>
+    </div>
+  </div>
+</div>
+
+          
         </div>
       </div>
+
 
       <!-- ACCOMMODATIONS TAB - JAVÍTOTT: Mindig renderelve van, csak elrejtve -->
       <div [style.display]="activeTab === 'accommodations' ? 'block' : 'none'">

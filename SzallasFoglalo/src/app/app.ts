@@ -13,3 +13,4 @@ import { NavbarComponent } from "../components/system/navbar/navbar.component";
 export class App {
   protected readonly title = signal('SzallasFoglalo');
 }
+  

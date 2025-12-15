@@ -5,15 +5,70 @@ import { UsersComponent } from "../users/users.component";
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../services/api';
 import { Router } from '@angular/router';
+import { ChartComponent } from '../chart/chart'; 
+import { ChartConfiguration } from 'chart.js';
 
 @Component({
+  standalone: true,
   selector: 'app-admin-dashboard',
-  imports: [UsersComponent, AccommodationsComponent, CommonModule, BookingsComponent],
+  imports: [UsersComponent, AccommodationsComponent, CommonModule, BookingsComponent, ChartComponent],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.scss'],
-  standalone: true
+  
 })
 export class AdminDashboardComponent implements OnInit, AfterViewInit {
+
+public salesChartData: ChartConfiguration['data'] = {
+    labels: ['Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat', 'Vasárnap'],
+    datasets: [
+      {
+        data: [65, 59, 80, 81, 56, 55, 70],
+        label: 'Eladások',
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+        tension: 0.4
+      }
+    ]
+  };
+
+  public userChartData: ChartConfiguration['data'] = {
+    labels: ['Aktív', 'Inaktív', 'Új'],
+    datasets: [
+      {
+        data: [300, 50, 100],
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.7)',
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(54, 162, 235, 0.7)'
+        ]
+      }
+    ]
+  };
+
+  public revenueChartData: ChartConfiguration['data'] = {
+    labels: ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún'],
+    datasets: [
+      {
+        data: [12000, 19000, 15000, 25000, 22000, 30000],
+        label: 'Bevétel (Ft)',
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgb(54, 162, 235)',
+        borderWidth: 2
+      }
+    ]
+  };
+
+  public chartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+      }
+    }
+  };
+  
   sidebarCollapsed = false;
   activeTab: string = 'dashboard';
   
@@ -33,6 +88,9 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
+
+  
+
 
   async ngOnInit(): Promise<void> {
     // Dashboard adatok betöltése azonnal
