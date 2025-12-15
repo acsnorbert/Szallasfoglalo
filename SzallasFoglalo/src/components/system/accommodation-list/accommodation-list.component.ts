@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api';
@@ -30,10 +30,12 @@ interface FilterOptions {
   templateUrl: './accommodation-list.component.html',
   styleUrl: './accommodation-list.component.scss'
 })
-export class AccommodationListComponent implements OnInit {
+export class AccommodationListComponent implements OnInit, AfterViewInit {
 
   accommodations: any[] = [];
   filteredAccommodations: any[] = [];
+  isLoading: boolean = true;
+  errorMessage: string = '';
   
   filters: FilterOptions = {
     location: '',
@@ -43,20 +45,70 @@ export class AccommodationListComponent implements OnInit {
 
   activeSortBtn: string = 'default';
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {
+  }
 
-  async ngOnInit(): Promise<void> {
-    await this.loadAccommodations();
+  ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.loadAccommodations();
+    }, 0);
   }
 
   async loadAccommodations(): Promise<void> {
-    const response = await this.apiService.selectAll('accommodations');
-    
-    if (response.status === 200) {
-      this.accommodations = await Promise.all(
-        response.data
-          .filter((acc: any) => acc.isActive === 1)
-          .map(async (acc: any) => {
+    try {
+      this.isLoading = true;
+      this.errorMessage = '';
+      
+      
+      const response = await this.apiService.selectAll('accommodations');
+      
+
+      
+      if (response && response.status === 200) {
+        
+        if (!response.data) {
+          console.warn('⚠️ Response data is null/undefined');
+          this.errorMessage = 'Nincs adat a szervertől';
+          this.accommodations = [];
+          this.filteredAccommodations = [];
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        if (!Array.isArray(response.data)) {
+          console.warn('⚠️ Response data is not an array:', typeof response.data);
+          this.errorMessage = 'Érvénytelen adatformátum';
+          this.accommodations = [];
+          this.filteredAccommodations = [];
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+
+
+        const activeAccommodations = response.data.filter((acc: any) => acc.isActive === 1);
+        
+
+        if (activeAccommodations.length === 0) {
+          console.warn('⚠️ No active accommodations found');
+          this.accommodations = [];
+          this.filteredAccommodations = [];
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        // Képek betöltése
+        this.accommodations = await Promise.all(
+          activeAccommodations.map(async (acc: any) => {
             const images = await this.loadImages(acc.id);
             return {
               id: acc.id,
@@ -72,37 +124,63 @@ export class AccommodationListComponent implements OnInit {
               rating: 5
             };
           })
-      );
+        );
 
-      this.filteredAccommodations = [...this.accommodations];
+        this.filteredAccommodations = [...this.accommodations];
+        
+
+        
+      } else {
+        console.error('❌ API error response:', response);
+        this.errorMessage = response?.message || 'Nem sikerült betölteni a szállásokat';
+        this.accommodations = [];
+        this.filteredAccommodations = [];
+      }
+      
+    } catch (error) {
+      console.error('💥 Exception in loadAccommodations:', error);
+      this.errorMessage = 'Hiba történt a betöltés közben';
+      this.accommodations = [];
+      this.filteredAccommodations = [];
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      
     }
   }
 
   async loadImages(accommodationId: number): Promise<string[]> {
-    const response = await this.apiService.selectAll('accommodation_images');
-    
-    if (response.status === 200) {
-      return response.data
-        .filter((img: any) => img.accommodationId === accommodationId)
-        .map((img: any) => `${environment.apiUrl}/uploads/${img.imagePath}`);
+    try {
+      const response = await this.apiService.selectAll('accommodation_images');
+      
+      if (response && response.status === 200 && response.data && Array.isArray(response.data)) {
+        const filtered = response.data
+          .filter((img: any) => img.accommodationId === accommodationId)
+          .map((img: any) => `${environment.apiUrl}/uploads/${img.imagePath}`);
+        
+        return filtered;
+      }
+    } catch (error) {
+      console.error(`❌ Error loading images for accommodation ${accommodationId}:`, error);
     }
     
     return [];
   }
 
   applyFilters(): void {
+    
     this.filteredAccommodations = this.accommodations.filter(acc => {
-      // Hely szerinti szűrés
-      const locationMatch = acc.location.toLowerCase().includes(this.filters.location.toLowerCase());
+      const locationMatch = !this.filters.location || 
+        acc.location.toLowerCase().includes(this.filters.location.toLowerCase());
       
-      // Férőhely szerinti szűrés
-      const capacityMatch = this.filters.capacity === 0 || acc.capacity >= this.filters.capacity;
+      const capacityMatch = this.filters.capacity === 0 || 
+        acc.capacity >= this.filters.capacity;
       
       return locationMatch && capacityMatch;
     });
 
-    // Rendezés alkalmazása
     this.sortAccommodations();
+    
   }
 
   sortAccommodations(): void {
@@ -118,10 +196,11 @@ export class AccommodationListComponent implements OnInit {
         break;
       case 'default':
       default:
-        // Eredeti sorrend
         this.filteredAccommodations = [...this.accommodations.filter(acc => {
-          const locationMatch = acc.location.toLowerCase().includes(this.filters.location.toLowerCase());
-          const capacityMatch = this.filters.capacity === 0 || acc.capacity >= this.filters.capacity;
+          const locationMatch = !this.filters.location || 
+            acc.location.toLowerCase().includes(this.filters.location.toLowerCase());
+          const capacityMatch = this.filters.capacity === 0 || 
+            acc.capacity >= this.filters.capacity;
           return locationMatch && capacityMatch;
         })];
         break;

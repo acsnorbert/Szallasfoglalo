@@ -444,3 +444,64 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+// Loading State
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #c9a961;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  p {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 500;
+  }
+}
+
+// Error State
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+  text-align: center;
+  
+  .error-icon {
+    font-size: 72px;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    font-size: 24px;
+    color: #c62828;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  p {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 1.5rem 0;
+  }
+  
+  .btn-primary {
+    margin-top: 1rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

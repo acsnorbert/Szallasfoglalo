@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -45,7 +45,7 @@ interface User {
   templateUrl: './booking.component.html',
   styleUrls: ['./booking.component.scss']
 })
-export class BookingComponent implements OnInit {
+export class BookingComponent implements OnInit, AfterViewInit {
 
   accommodations: Accommodation[] = [];
   filteredAccommodations: Accommodation[] = [];
@@ -61,6 +61,10 @@ export class BookingComponent implements OnInit {
   maxPrice = 100000;
   minCapacity = 1;
 
+  // Loading states
+  isLoading: boolean = true;
+  errorMessage: string = '';
+
   // Lightbox
   showLightbox = false;
   lightboxImages: string[] = [];
@@ -69,14 +73,20 @@ export class BookingComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private apiService: ApiService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this.initForms();
-    await this.loadCurrentUser();
-    await this.loadAccommodations();
-    await this.loadBookings();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(async () => {
+      await this.loadCurrentUser();
+      await this.loadAccommodations();
+      await this.loadBookings();
+    }, 0);
   }
 
   initForms(): void {
@@ -97,16 +107,18 @@ export class BookingComponent implements OnInit {
   }
 
   async loadCurrentUser(): Promise<void> {
-    // Feltételezzük, hogy van egy sessionStorage vagy localStorage-ban tárolt user
-    const userStr = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
-    if (userStr) {
-      this.currentUser = JSON.parse(userStr);
-    }
-    
-    // Ha nincs bejelentkezve, próbáljuk meg lekérni az első user-t (demo célra)
-    if (!this.currentUser) {
+    try {
+      
+      // Feltételezzük, hogy van egy sessionStorage vagy localStorage-ban tárolt user
+      const userStr = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
+      if (userStr) {
+        this.currentUser = JSON.parse(userStr);
+        return;
+      }
+      
+      // Ha nincs bejelentkezve, próbáljuk meg lekérni az első user-t (demo célra)
       const response = await this.apiService.selectAll('users');
-      if (response.status === 200 && response.data.length > 0) {
+      if (response && response.status === 200 && response.data && response.data.length > 0) {
         // Demo: első nem-admin user
         const demoUser = response.data.find((u: any) => u.role === 'user');
         if (demoUser) {
@@ -116,49 +128,102 @@ export class BookingComponent implements OnInit {
             email: demoUser.email,
             role: demoUser.role
           };
+
         }
       }
+    } catch (error) {
+      console.error('❌ Error loading user:', error);
     }
   }
 
   async loadAccommodations(): Promise<void> {
-    const response = await this.apiService.selectAll('accommodations');
-    if (response.status === 200) {
-      this.accommodations = response.data
-        .filter((acc: any) => acc.isActive === 1)
-        .map((acc: any) => ({
+    try {
+      this.isLoading = true;
+      this.errorMessage = '';
+      
+      
+      const response = await this.apiService.selectAll('accommodations');
+      
+      
+      if (response && response.status === 200) {
+        if (!response.data || !Array.isArray(response.data)) {
+          console.warn('⚠️ Invalid accommodations data');
+          this.errorMessage = 'Érvénytelen szállás adatok';
+          this.accommodations = [];
+          this.filteredAccommodations = [];
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        const activeAccommodations = response.data.filter((acc: any) => acc.isActive === 1);
+        
+        this.accommodations = activeAccommodations.map((acc: any) => ({
           ...acc,
           isActive: acc.isActive === 1,
           images: []
         }));
-      
-      // Képek betöltése minden szálláshoz
-      for (let acc of this.accommodations) {
-        await this.loadImages(acc);
+        
+        // Képek betöltése minden szálláshoz
+        for (let acc of this.accommodations) {
+          await this.loadImages(acc);
+        }
+        
+        this.filterAccommodations();
+        
+        
+      } else {
+        console.error('❌ Failed to load accommodations:', response);
+        this.errorMessage = response?.message || 'Nem sikerült betölteni a szállásokat';
+        this.accommodations = [];
+        this.filteredAccommodations = [];
       }
       
-      this.filterAccommodations();
+    } catch (error) {
+      console.error('💥 Error loading accommodations:', error);
+      this.errorMessage = 'Hiba történt a szállások betöltése közben';
+      this.accommodations = [];
+      this.filteredAccommodations = [];
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+
     }
   }
 
   async loadImages(accommodation: Accommodation): Promise<void> {
-    const response = await this.apiService.selectAll('accommodation_images');
-    if (response.status === 200) {
-      const images = response.data
-        .filter((img: any) => img.accommodationId === accommodation.id)
-        .map((img: any) => `${environment.apiUrl}/uploads/${img.imagePath}`);
-      accommodation.images = images;
+    try {
+      const response = await this.apiService.selectAll('accommodation_images');
+      
+      if (response && response.status === 200 && response.data && Array.isArray(response.data)) {
+        const images = response.data
+          .filter((img: any) => img.accommodationId === accommodation.id)
+          .map((img: any) => `${environment.apiUrl}/uploads/${img.imagePath}`);
+        accommodation.images = images;
+        
+
+      }
+    } catch (error) {
+      console.error(`❌ Error loading images for accommodation ${accommodation.id}:`, error);
     }
   }
 
   async loadBookings(): Promise<void> {
-    const response = await this.apiService.selectAll('bookings');
-    if (response.status === 200) {
-      this.existingBookings = response.data.filter((b: any) => b.status === 1);
+    try {
+      
+      const response = await this.apiService.selectAll('bookings');
+      
+      if (response && response.status === 200 && response.data && Array.isArray(response.data)) {
+        this.existingBookings = response.data.filter((b: any) => b.status === 1);
+      }
+    } catch (error) {
+      console.error('❌ Error loading bookings:', error);
     }
   }
 
   filterAccommodations(): void {
+
+
     this.filteredAccommodations = this.accommodations.filter(acc => {
       const matchesSearch = !this.searchTerm || 
         acc.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -170,6 +235,7 @@ export class BookingComponent implements OnInit {
       
       return matchesSearch && matchesPrice && matchesCapacity;
     });
+
   }
 
   onSearchChange(): void {
@@ -177,6 +243,8 @@ export class BookingComponent implements OnInit {
   }
 
   openBookingModal(accommodation: Accommodation): void {
+
+    
     if (!this.currentUser) {
       this.messageService.show('warning', 'Hiba', 'Kérlek jelentkezz be a foglaláshoz!');
       return;
@@ -233,6 +301,7 @@ export class BookingComponent implements OnInit {
   }
 
   async saveBooking(): Promise<void> {
+    
     if (!this.bookingForm.valid || !this.selectedAccommodation || !this.currentUser) {
       this.messageService.show('warning', 'Hiba', 'Kérlek töltsd ki az összes kötelező mezőt!');
       return;
@@ -279,16 +348,17 @@ export class BookingComponent implements OnInit {
     try {
       const response = await this.apiService.insert('bookings', bookingData);
       
-      if (response.status === 200) {
+      
+      if (response && response.status === 200) {
         this.messageService.show('success', 'Siker', `Foglalás sikeresen létrehozva! Összesen: ${totalPrice.toLocaleString('hu-HU')} Ft`);
         await this.loadBookings();
         this.closeBookingModal();
       } else {
-        this.messageService.show('warning', 'Hiba', response.message || 'Hiba történt a foglalás során!');
+        this.messageService.show('warning', 'Hiba', response?.message || 'Hiba történt a foglalás során!');
       }
     } catch (error) {
       this.messageService.show('warning', 'Hiba', 'Hiba történt a foglalás létrehozása során!');
-      console.error('Booking error:', error);
+      console.error('💥 Booking error:', error);
     }
   }
 

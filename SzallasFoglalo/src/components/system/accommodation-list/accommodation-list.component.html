@@ -1,137 +1,154 @@
-<section class="accommodations-header">
-  <div class="container">
-    <div class="header-content">
-      <div class="header-stars">★★★★★</div>
-      <h1>Kiemelt Szálláslista</h1>
-      <p>Fedezd fel a legjobb ajánlatainkat, ahol az ár és minőség tökéletes harmóniában találkozik</p>
-    </div>
-  </div>
-</section>
-
-<div class="filters-wrapper">
-  <div class="container">
-    <div class="filters-container">
-      <div class="filter-section-title">🔍 Keresés & Szűrés</div>
-      
-      <div class="filters-grid">
-        <div class="filter-group">
-          <label for="location">📍 Elhelyezkedés</label>
-          <input 
-            type="text" 
-            id="location" 
-            placeholder="Város, régió..."
-            [(ngModel)]="filters.location"
-            (input)="applyFilters()">
-        </div>
-        <div class="filter-group">
-          <label for="capacity">👥 Férőhely</label>
-          <input 
-            type="number" 
-            id="capacity" 
-            placeholder="Minimum emberszám" 
-            min="1"
-            [(ngModel)]="filters.capacity"
-            (input)="applyFilters()">
-        </div>
-        <div class="filter-group">
-          <label for="availableDate">📅 Elérhető dátum</label>
-          <input type="date" id="availableDate">
-        </div>
-      </div>
-
-      <div class="sort-section">
-        <div class="filter-section-title" style="margin-bottom: 1rem; padding-bottom: 0.5rem;">📊 Rendezés</div>
-        <div class="sort-buttons">
-          <button 
-            class="sort-btn" 
-            [class.active]="activeSortBtn === 'price'"
-            (click)="setSortBy('price')">
-            Ár szerint
-          </button>
-          <button 
-            class="sort-btn"
-            [class.active]="activeSortBtn === 'name'"
-            (click)="setSortBy('name')">
-            Név szerint
-          </button>
-          <button 
-            class="sort-btn"
-            [class.active]="activeSortBtn === 'capacity'"
-            (click)="setSortBy('capacity')">
-            Férőhely szerint
-          </button>
-          <button 
-            class="sort-btn" 
-            [class.active]="activeSortBtn === 'default'"
-            (click)="setSortBy('default')">
-            Alapértelmezett
-          </button>
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-primary" (click)="applyFilters()">🔍 Szűrés alkalmazása</button>
-        <button class="btn btn-secondary" (click)="resetFilters()">↻ Alapértelmezés</button>
-      </div>
-    </div>
-  </div>
+<!-- Loading State -->
+<div class="loading-state" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Szállások betöltése...</p>
 </div>
 
-<section class="accommodations-section">
-  <div class="container">
-    <div class="accommodations-grid">
-      <div class="accommodation-card" *ngFor="let acc of filteredAccommodations">
-        <div class="card-image">
-          <img 
-            [src]="acc.image || 'https://via.placeholder.com/400x250'" 
-            [alt]="acc.title">
-          <div class="card-stars">
-            <span class="star" *ngFor="let i of [1,2,3,4,5]">★</span>
+<!-- Error State -->
+<div class="error-state" *ngIf="!isLoading && errorMessage">
+  <div class="error-icon">⚠️</div>
+  <h3>Hiba történt</h3>
+  <p>{{ errorMessage }}</p>
+  <button class="btn btn-primary" (click)="loadAccommodations()">🔄 Újrapróbálkozás</button>
+</div>
+
+<!-- Main Content - csak akkor jelenik meg ha nincs loading és nincs error -->
+<ng-container *ngIf="!isLoading && !errorMessage">
+  <section class="accommodations-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="header-stars">★★★★★</div>
+        <h1>Kiemelt Szálláslista</h1>
+        <p>Fedezd fel a legjobb ajánlatainkat, ahol az ár és minőség tökéletes harmóniában találkozik</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="filters-wrapper">
+    <div class="container">
+      <div class="filters-container">
+        <div class="filter-section-title">🔍 Keresés & Szűrés</div>
+        
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="location">📍 Elhelyezkedés</label>
+            <input 
+              type="text" 
+              id="location" 
+              placeholder="Város, régió..."
+              [(ngModel)]="filters.location"
+              (input)="applyFilters()">
           </div>
-          <div class="card-badge">
-            {{ acc.price | number:'1.0-0' }} Ft
+          <div class="filter-group">
+            <label for="capacity">👥 Férőhely</label>
+            <input 
+              type="number" 
+              id="capacity" 
+              placeholder="Minimum emberszám" 
+              min="1"
+              [(ngModel)]="filters.capacity"
+              (input)="applyFilters()">
+          </div>
+          <div class="filter-group">
+            <label for="availableDate">📅 Elérhető dátum</label>
+            <input type="date" id="availableDate">
           </div>
         </div>
 
-        <div class="card-content">
-          <h3 class="card-title">{{ acc.title }}</h3>
-          <p class="card-description">{{ acc.description }}</p>
-          
-          <div class="card-info">
-            <div class="info-item">
-              <span class="info-icon">👥</span>
-              <span>{{ acc.capacity }} fő</span>
-            </div>
-            <div class="info-item">
-              <span class="info-icon">📍</span>
-              <span>{{ acc.location }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-icon">🛏️</span>
-              <span>{{ acc.bedType }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-icon">📶</span>
-              <span>WiFi</span>
-            </div>
+        <div class="sort-section">
+          <div class="filter-section-title" style="margin-bottom: 1rem; padding-bottom: 0.5rem;">📊 Rendezés</div>
+          <div class="sort-buttons">
+            <button 
+              class="sort-btn" 
+              [class.active]="activeSortBtn === 'price'"
+              (click)="setSortBy('price')">
+              Ár szerint
+            </button>
+            <button 
+              class="sort-btn"
+              [class.active]="activeSortBtn === 'name'"
+              (click)="setSortBy('name')">
+              Név szerint
+            </button>
+            <button 
+              class="sort-btn"
+              [class.active]="activeSortBtn === 'capacity'"
+              (click)="setSortBy('capacity')">
+              Férőhely szerint
+            </button>
+            <button 
+              class="sort-btn" 
+              [class.active]="activeSortBtn === 'default'"
+              (click)="setSortBy('default')">
+              Alapértelmezett
+            </button>
           </div>
+        </div>
 
-          <div class="card-price">
-            <span class="price">{{ acc.price | number:'1.0-0' }} Ft<span class="price-unit">/éjszaka</span></span>
-            <div class="availability-badge" [class.unavailable]="!acc.available">
-              {{ acc.available ? 'Elérhető' : 'Nem elérhető' }}
-            </div>
-          </div>
-
-          <button class="card-button">Részletek</button>
+        <div class="action-buttons">
+          <button class="btn btn-primary" (click)="applyFilters()">🔍 Szűrés alkalmazása</button>
+          <button class="btn btn-secondary" (click)="resetFilters()">↻ Alapértelmezés</button>
         </div>
       </div>
     </div>
-
-    <div class="empty-state" *ngIf="filteredAccommodations.length === 0">
-      <div class="empty-icon">🏨</div>
-      <h3>Nincs megjeleníthető szállás</h3>
-      <p>Próbálj meg módosítani a szűrési feltételeket</p>
-    </div>
   </div>
-</section>
+
+  <section class="accommodations-section">
+    <div class="container">
+      <div class="accommodations-grid">
+        <div class="accommodation-card" *ngFor="let acc of filteredAccommodations">
+          <div class="card-image">
+            <img 
+              [src]="acc.image || 'https://via.placeholder.com/400x250'" 
+              [alt]="acc.title">
+            <div class="card-stars">
+              <span class="star" *ngFor="let i of [1,2,3,4,5]">★</span>
+            </div>
+            <div class="card-badge">
+              {{ acc.price | number:'1.0-0' }} Ft
+            </div>
+          </div>
+
+          <div class="card-content">
+            <h3 class="card-title">{{ acc.title }}</h3>
+            <p class="card-description">{{ acc.description }}</p>
+            
+            <div class="card-info">
+              <div class="info-item">
+                <span class="info-icon">👥</span>
+                <span>{{ acc.capacity }} fő</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">📍</span>
+                <span>{{ acc.location }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">🛏️</span>
+                <span>{{ acc.bedType }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">📶</span>
+                <span>WiFi</span>
+              </div>
+            </div>
+
+            <div class="card-price">
+              <span class="price">{{ acc.price | number:'1.0-0' }} Ft<span class="price-unit">/éjszaka</span></span>
+              <div class="availability-badge" [class.unavailable]="!acc.available">
+                {{ acc.available ? 'Elérhető' : 'Nem elérhető' }}
+              </div>
+            </div>
+
+            <button class="card-button">Részletek</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="filteredAccommodations.length === 0">
+        <div class="empty-icon">🏨</div>
+        <h3>Nincs megjeleníthető szállás</h3>
+        <p>Próbálj meg módosítani a szűrési feltételeket</p>
+      </div>
+    </div>
+  </section>
+</ng-container>
