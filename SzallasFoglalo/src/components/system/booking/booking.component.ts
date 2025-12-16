@@ -108,18 +108,14 @@ export class BookingComponent implements OnInit, AfterViewInit {
 
   async loadCurrentUser(): Promise<void> {
     try {
-      
-      // Feltételezzük, hogy van egy sessionStorage vagy localStorage-ban tárolt user
       const userStr = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
       if (userStr) {
         this.currentUser = JSON.parse(userStr);
         return;
       }
       
-      // Ha nincs bejelentkezve, próbáljuk meg lekérni az első user-t (demo célra)
       const response = await this.apiService.selectAll('users');
       if (response && response.status === 200 && response.data && response.data.length > 0) {
-        // Demo: első nem-admin user
         const demoUser = response.data.find((u: any) => u.role === 'user');
         if (demoUser) {
           this.currentUser = {
@@ -128,7 +124,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
             email: demoUser.email,
             role: demoUser.role
           };
-
         }
       }
     } catch (error) {
@@ -141,9 +136,7 @@ export class BookingComponent implements OnInit, AfterViewInit {
       this.isLoading = true;
       this.errorMessage = '';
       
-      
       const response = await this.apiService.selectAll('accommodations');
-      
       
       if (response && response.status === 200) {
         if (!response.data || !Array.isArray(response.data)) {
@@ -164,13 +157,11 @@ export class BookingComponent implements OnInit, AfterViewInit {
           images: []
         }));
         
-        // Képek betöltése minden szálláshoz
         for (let acc of this.accommodations) {
           await this.loadImages(acc);
         }
         
         this.filterAccommodations();
-        
         
       } else {
         console.error('❌ Failed to load accommodations:', response);
@@ -187,7 +178,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
-
     }
   }
 
@@ -200,8 +190,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
           .filter((img: any) => img.accommodationId === accommodation.id)
           .map((img: any) => `${environment.apiUrl}/uploads/${img.imagePath}`);
         accommodation.images = images;
-        
-
       }
     } catch (error) {
       console.error(`❌ Error loading images for accommodation ${accommodation.id}:`, error);
@@ -210,7 +198,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
 
   async loadBookings(): Promise<void> {
     try {
-      
       const response = await this.apiService.selectAll('bookings');
       
       if (response && response.status === 200 && response.data && Array.isArray(response.data)) {
@@ -222,8 +209,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
   }
 
   filterAccommodations(): void {
-
-
     this.filteredAccommodations = this.accommodations.filter(acc => {
       const matchesSearch = !this.searchTerm || 
         acc.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -235,7 +220,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
       
       return matchesSearch && matchesPrice && matchesCapacity;
     });
-
   }
 
   onSearchChange(): void {
@@ -243,18 +227,21 @@ export class BookingComponent implements OnInit, AfterViewInit {
   }
 
   openBookingModal(accommodation: Accommodation): void {
-
-    
     if (!this.currentUser) {
       this.messageService.show('warning', 'Hiba', 'Kérlek jelentkezz be a foglaláshoz!');
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
     this.selectedAccommodation = accommodation;
     this.bookingForm.patchValue({
       persons: 1,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: ''
+      startDate: today.toISOString().split('T')[0],
+      endDate: tomorrow.toISOString().split('T')[0]
     });
     this.showBookingModal = true;
   }
@@ -263,6 +250,10 @@ export class BookingComponent implements OnInit, AfterViewInit {
     this.showBookingModal = false;
     this.selectedAccommodation = null;
     this.bookingForm.reset();
+
+    // Message send
+    
+
   }
 
   calculateNights(): number {
@@ -286,14 +277,12 @@ export class BookingComponent implements OnInit, AfterViewInit {
     const startDate = new Date(this.bookingForm.value.startDate);
     const endDate = new Date(this.bookingForm.value.endDate);
     
-    // Ellenőrizzük, hogy van-e ütközés a meglévő foglalásokkal
     const conflicts = this.existingBookings.filter(booking => {
       if (booking.accommodationId !== this.selectedAccommodation!.id) return false;
       
       const bookingStart = new Date(booking.startDate);
       const bookingEnd = new Date(booking.endDate);
       
-      // Ütközés ellenőrzés
       return (startDate < bookingEnd && endDate > bookingStart);
     });
     
@@ -301,7 +290,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
   }
 
   async saveBooking(): Promise<void> {
-    
     if (!this.bookingForm.valid || !this.selectedAccommodation || !this.currentUser) {
       this.messageService.show('warning', 'Hiba', 'Kérlek töltsd ki az összes kötelező mezőt!');
       return;
@@ -312,7 +300,6 @@ export class BookingComponent implements OnInit, AfterViewInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Validációk
     if (startDate < today) {
       this.messageService.show('warning', 'Hiba', 'A kezdő dátum nem lehet a múltban!');
       return;
@@ -342,12 +329,11 @@ export class BookingComponent implements OnInit, AfterViewInit {
       endDate: this.bookingForm.value.endDate,
       persons: this.bookingForm.value.persons,
       totalPrice: totalPrice,
-      status: 1 // Aktív/Megerősített
+      status: 1
     };
 
     try {
       const response = await this.apiService.insert('bookings', bookingData);
-      
       
       if (response && response.status === 200) {
         this.messageService.show('success', 'Siker', `Foglalás sikeresen létrehozva! Összesen: ${totalPrice.toLocaleString('hu-HU')} Ft`);
@@ -383,5 +369,44 @@ export class BookingComponent implements OnInit, AfterViewInit {
     this.currentImageIndex = this.currentImageIndex === 0 
       ? this.lightboxImages.length - 1 
       : this.currentImageIndex - 1;
+  }
+
+  getMinStartDate(): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today.toISOString().split('T')[0];
+  }
+
+  getMinEndDate(): string {
+    const startDate = this.bookingForm.value.startDate;
+    if (!startDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      today.setDate(today.getDate() + 1);
+      return today.toISOString().split('T')[0];
+    }
+    const nextDay = new Date(startDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return nextDay.toISOString().split('T')[0];
+  }
+
+  onDateChange(): void {
+    const startDate = this.bookingForm.value.startDate;
+    const endDate = this.bookingForm.value.endDate;
+    
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (end <= start) {
+        const nextDay = new Date(start);
+        nextDay.setDate(nextDay.getDate() + 1);
+        this.bookingForm.patchValue({
+          endDate: nextDay.toISOString().split('T')[0]
+        });
+      }
+    }
+    
+    this.cdr.detectChanges();
   }
 }
