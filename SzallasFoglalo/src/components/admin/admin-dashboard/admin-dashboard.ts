@@ -5,13 +5,12 @@ import { UsersComponent } from "../users/users.component";
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../services/api';
 import { Router } from '@angular/router';
-import { ChartComponent } from '../chart/chart'; 
 import { ChartConfiguration } from 'chart.js';
 
 @Component({
   standalone: true,
   selector: 'app-admin-dashboard',
-  imports: [UsersComponent, AccommodationsComponent, CommonModule, BookingsComponent, ChartComponent],
+  imports: [UsersComponent, AccommodationsComponent, CommonModule, BookingsComponent],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.scss'],
   
