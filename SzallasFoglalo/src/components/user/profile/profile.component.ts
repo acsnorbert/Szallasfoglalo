@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../../services/auth'
-import { environment } from '../../../environments/environment'
+import { AuthService } from '../../../services/auth';
+import { ApiService } from '../../../services/api';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -13,7 +12,7 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./profile.component.scss'],
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, AfterViewInit {
 
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
@@ -40,13 +39,20 @@ export class ProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private apiService: ApiService
   ) { }
 
   ngOnInit(): void {
     this.initializeForms();
-    this.loadUserData();
-    this.loadBookings();
+  }
+
+  ngAfterViewInit(): void {
+    // Aszinkron betöltés - először user, utána bookings
+    setTimeout(async () => {
+      await this.loadUserData();
+      await this.loadBookings();
+    }, 0);
   }
 
   initializeForms(): void {
@@ -72,9 +78,11 @@ export class ProfileComponent implements OnInit {
     }, { validators: this.dateRangeValidator });
   }
 
-  loadUserData(): void {
+  async loadUserData(): Promise<void> {
     this.currentUser = this.authService.loggedUser();
-    if (this.currentUser) {
+    console.log('LoadUserData - currentUser:', this.currentUser);
+    
+    if (this.currentUser && this.currentUser[0]) {
       this.profileForm.patchValue({
         name: this.currentUser[0].name,
         email: this.currentUser[0].email
@@ -82,92 +90,80 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // Bookings Methods
-  loadBookings(): void {
-    if (!this.currentUser || !this.currentUser[0]?.id) return;
+  // Bookings Methods - booking.component mintájára
+  async loadBookings(): Promise<void> {
+    if (!this.currentUser || !this.currentUser[0]?.id) {
+      console.log('Nincs bejelentkezett user');
+      return;
+    }
 
     this.bookingsLoading = true;
     const userId = this.currentUser[0].id;
 
-    // Lekérjük az összes foglalást
-    this.http.get<any[]>(`${this.apiUrl}/bookings`).subscribe({
-      next: (allBookings) => {
-        console.log('Összes foglalás:', allBookings);
-        console.log('Bejelentkezett user ID:', userId);
-        
-        // Szűrjük a user foglalásait és aktív státuszúakat
-        const userBookings = allBookings.filter(b => {
-          console.log('Foglalás userId:', b.userId, 'Típusa:', typeof b.userId);
-          console.log('Összehasonlítva:', b.userId, '==', userId, '=', b.userId == userId);
-          return b.userId == userId && b.status == 1;
-        });
-        
-        if (userBookings.length === 0) {
-          this.bookings = [];
-          this.bookingsLoading = false;
-          return;
-        }
-
-        // Minden foglaláshoz lekérjük a szállás adatait
-        const accommodationRequests = userBookings.map(booking => 
-          this.http.get<any>(`${this.apiUrl}/accommodations/${booking.accommodationId}`)
-        );
-
-        forkJoin(accommodationRequests).subscribe({
-          next: (accommodations) => {
-            // Összerakjuk a foglalást a szállás adataival
-            this.bookings = userBookings.map((booking, index) => {
-              const accommodation = accommodations[index][0]; // Az API tömböt ad vissza
-              return {
-                ...booking,
-                accommodationName: accommodation.name,
-                description: accommodation.description,
-                address: accommodation.address,
-                maxCapacity: accommodation.maxCapacity,
-                basePrice: accommodation.basePrice
-              };
-            });
-
-            // Lekérjük a képeket is
-            this.loadBookingImages();
-          },
-          error: (error) => {
-            console.error('Hiba a szállások betöltésekor:', error);
-            this.showError('Hiba történt a szállások adatainak betöltésekor!');
-            this.bookingsLoading = false;
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Hiba a foglalások betöltésekor:', error);
-        this.showError('Hiba történt a foglalások betöltésekor!');
+    try {
+      // Lekérjük az összes foglalást
+      const bookingsResponse = await this.apiService.selectAll('bookings');
+      
+      if (!bookingsResponse || bookingsResponse.status !== 200 || !bookingsResponse.data) {
+        console.error('Hiba a foglalások lekérésénél');
+        this.bookings = [];
         this.bookingsLoading = false;
+        return;
       }
-    });
-  }
 
-  loadBookingImages(): void {
-    const imageRequests = this.bookings.map(booking =>
-      this.http.get<any[]>(`${this.apiUrl}/accommodation_images/accommodationId/eq/${booking.accommodationId}`)
-    );
+      console.log('Összes foglalás:', bookingsResponse.data);
+      console.log('Keresett userId:', userId, 'Típusa:', typeof userId);
+      
+      // Szűrjük a user foglalásait és aktív státuszúakat
+      const userBookings = bookingsResponse.data.filter((b: any) => {
+        console.log(`Foglalás ID: ${b.id}, userId: ${b.userId} (${typeof b.userId}), status: ${b.status} (${typeof b.status})`);
+        console.log(`Összehasonlítás: ${b.userId} == ${userId} = ${b.userId == userId}`);
+        console.log(`Státusz: ${b.status} == 1 = ${b.status == 1}`);
+        return Number(b.userId) === Number(userId) && Number(b.status) === 1;
+      });
 
-    forkJoin(imageRequests).subscribe({
-      next: (imagesArrays) => {
-        this.bookings = this.bookings.map((booking, index) => {
-          const images = imagesArrays[index];
-          return {
-            ...booking,
-            mainImage: images && images.length > 0 ? images[0].imagePath : null
-          };
-        });
+      console.log('User foglalásai:', userBookings);
+
+      if (userBookings.length === 0) {
+        this.bookings = [];
         this.bookingsLoading = false;
-      },
-      error: (error) => {
-        console.error('Hiba a képek betöltésekor:', error);
-        // Még akkor is megjelenítjük a foglalásokat, ha a képek nem töltődnek be
-        this.bookingsLoading = false;
+        return;
       }
-    });
+
+      // Lekérjük az összes szállást
+      const accommodationsResponse = await this.apiService.selectAll('accommodations');
+      const allAccommodations = accommodationsResponse?.data || [];
+
+      // Lekérjük az összes képet
+      const imagesResponse = await this.apiService.selectAll('accommodation_images');
+      const allImages = imagesResponse?.data || [];
+
+      // Összerakjuk a foglalásokat a szállás adataival
+      this.bookings = userBookings.map((booking: any) => {
+        const accommodation = allAccommodations.find((acc: any) => acc.id === booking.accommodationId);
+        const images = allImages.filter((img: any) => img.accommodationId === booking.accommodationId);
+        const mainImage = images.length > 0 ? images[0].imagePath : null;
+
+        return {
+          ...booking,
+          accommodationName: accommodation?.name || 'Ismeretlen szállás',
+          description: accommodation?.description || '',
+          address: accommodation?.address || '',
+          maxCapacity: accommodation?.maxCapacity || 0,
+          basePrice: accommodation?.basePrice || 0,
+          mainImage: mainImage
+        };
+      });
+
+      console.log('Feldolgozott foglalások:', this.bookings);
+      
+    } catch (error) {
+      console.error('Hiba a foglalások betöltésekor:', error);
+      this.showError('Hiba történt a foglalások betöltésekor!');
+      this.bookings = [];
+    } finally {
+      this.bookingsLoading = false;
+    }
   }
 
   openEditModal(booking: any): void {
@@ -177,6 +173,15 @@ export class ProfileComponent implements OnInit {
       endDate: this.formatDateForInput(booking.endDate),
       persons: booking.persons
     });
+    
+    // Validátor frissítése a max capacity-vel
+    this.editBookingForm.get('persons')?.setValidators([
+      Validators.required,
+      Validators.min(1),
+      Validators.max(booking.maxCapacity)
+    ]);
+    this.editBookingForm.get('persons')?.updateValueAndValidity();
+    
     this.showEditModal = true;
   }
 
@@ -196,7 +201,7 @@ export class ProfileComponent implements OnInit {
     this.selectedBooking = null;
   }
 
-  updateBooking(): void {
+  async updateBooking(): Promise<void> {
     if (this.editBookingForm.invalid || !this.selectedBooking) {
       this.showError('Kérjük, töltsd ki helyesen az összes mezőt!');
       return;
@@ -213,21 +218,25 @@ export class ProfileComponent implements OnInit {
       totalPrice: this.calculateNewPrice()
     };
 
-    this.http.patch(`${this.apiUrl}/bookings/${bookingId}`, updateData).subscribe({
-      next: (response) => {
+    try {
+      const response = await this.apiService.update('bookings', bookingId, updateData);
+      
+      if (response && response.status === 200) {
         this.showSuccess('Foglalás sikeresen módosítva!');
         this.closeEditModal();
-        this.loadBookings();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.showError(error.error?.error || 'Hiba a foglalás módosításakor!');
-        this.isLoading = false;
+        await this.loadBookings();
+      } else {
+        this.showError('Hiba a foglalás módosításakor!');
       }
-    });
+    } catch (error) {
+      console.error('Hiba a módosításkor:', error);
+      this.showError('Hiba a foglalás módosításakor!');
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  deleteBooking(): void {
+  async deleteBooking(): Promise<void> {
     if (!this.selectedBooking) return;
 
     this.isLoading = true;
@@ -235,19 +244,23 @@ export class ProfileComponent implements OnInit {
 
     const bookingId = this.selectedBooking.id;
 
-    // Státusz 0-ra állítása (soft delete)
-    this.http.patch(`${this.apiUrl}/bookings/${bookingId}`, { status: 0 }).subscribe({
-      next: (response) => {
+    try {
+      // Státusz 0-ra állítása (soft delete)
+      const response = await this.apiService.update('bookings', bookingId, { status: 0 });
+      
+      if (response && response.status === 200) {
         this.showSuccess('Foglalás sikeresen törölve!');
         this.closeDeleteModal();
-        this.loadBookings();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.showError(error.error?.error || 'Hiba a foglalás törlésekor!');
-        this.isLoading = false;
+        await this.loadBookings();
+      } else {
+        this.showError('Hiba a foglalás törlésekor!');
       }
-    });
+    } catch (error) {
+      console.error('Hiba a törléskor:', error);
+      this.showError('Hiba a foglalás törlésekor!');
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   calculateNewPrice(): number {
@@ -262,7 +275,7 @@ export class ProfileComponent implements OnInit {
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     const basePrice = this.selectedBooking.basePrice;
 
-    return days * basePrice;
+    return days * basePrice * persons;
   }
 
   formatDate(dateString: string): string {
