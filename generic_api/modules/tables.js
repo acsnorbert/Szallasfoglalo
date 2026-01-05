@@ -102,28 +102,29 @@ async function renderTemplate(templateName, data) {
 
 // SENDING email
 router.post('/sendmail', async (req, res) => {
-    const { template, to, subject, data} = req.body;
+    const { template, to, subject, data } = req.body;
     
     if (!to || !subject || !template) {
         return res.status(400).send({ error: 'Hiányzó adatok!' });
     }
 
-
     try {
-        transporter.sendMail({
-            from: 'Barmi igazabol',
+        // ← await-et hozzáadni!
+        await transporter.sendMail({
+            from: '"Almaris" <noreply@almaris.com>',
             to: to,
             subject: subject,
             html: await renderTemplate(template, data || {})
-        })
+        });
 
-        return res.status(200).send({ message: 'E-mail küldése sikeres!' })
+        return res.status(200).send({ message: 'E-mail küldése sikeres!' });
     } catch (err) {
         console.log(err);
-        return res.status(500).send({ error: 'Hiba az email küldése közben! ' + err.message})
+        return res.status(500).send({ 
+            error: 'Hiba az email küldése közben! ' + err.message
+        });
     }
-
-})
+});
 
 // LOGIN
 router.post('/:table/login', (req, res) => {
@@ -152,7 +153,7 @@ router.post('/:table/login', (req, res) => {
 // Registration
 router.post('/:table/registration', (req, res) => {
     let table = req.params.table;
-    let { name, email, password, confirm, phone, address } = req.body;
+    let { name, email, password, confirm } = req.body;
 
     if (!name || !email || !password || !confirm) {
         res.status(400).send({ error: 'Hiányzó adatok!' });
@@ -177,7 +178,7 @@ router.post('/:table/registration', (req, res) => {
             return;
         }
 
-        query(`INSERT INTO ${table} (name, email, password, role, phone, address) VALUES (?,?,?, 'user', ?, ?)`, [name, email, SHA1(password).toString(), phone, address], (error, results) => {
+        query(`INSERT INTO ${table} (name, email, password, role) VALUES (?,?,?, 'user')`, [name, email, SHA1(password).toString()], (error, results) => {
 
             if (error) return res.status(500).json({ errno: error.errno, msg: 'Hiba történt az adatbázis lekérdezése közben.', error: error.message });
             res.status(200).send(results)

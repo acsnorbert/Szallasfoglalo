@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { User } from '../../../interfaces/user';
 import { ApiService } from '../../../services/api';
 import { MessageService } from '../../../services/message';
+import { EmailService } from '../../../services/email';
 
 @Component({
   selector: 'app-register',
@@ -21,13 +22,16 @@ export class RegistrationComponent{
     name: '',
     email: '',
     password: '',
+    confirm: '',
     role: 'user',
   };
 
   constructor(
     private api: ApiService,
     private message: MessageService,
-    private router: Router) {}
+    private router: Router,
+    private email: EmailService
+  ) {}
 
 
     registration() {
@@ -57,6 +61,10 @@ export class RegistrationComponent{
         /*this.api.sendmail(data);*/
   
         this.message.show('success', 'Ok', res.message);
+        /*this.email.sendEmail('registration',this.newUser.email,'Üdvözlünk','aa').subscribe({
+          next: () => alert('Email elküldve!'),
+          error: (err) => alert('Hiba: ' + err.error.error)
+        });*/
         this.router.navigate(['/login']);
       })
     }
