@@ -196,5 +196,179 @@
       </form>
     </div>
 
+    <!-- ÚJ RÉSZ: Foglalásaim Section -->
+    <div class="profile-section">
+      <h2 class="section-title">Foglalásaim</h2>
+      
+      <div *ngIf="bookingsLoading" class="bookings-loading">
+        <div class="loading-spinner">Foglalások betöltése...</div>
+      </div>
+
+      <div *ngIf="!bookingsLoading && bookings.length === 0" class="no-bookings">
+        <p>Még nincs aktív foglalásod.</p>
+      </div>
+
+      <div *ngIf="!bookingsLoading && bookings.length > 0" class="bookings-grid">
+        <div *ngFor="let booking of bookings" class="booking-card">
+          <div class="booking-image">
+            <img [src]="getImagePath(booking.mainImage)" [alt]="booking.accommodationName" />
+          </div>
+          <div class="booking-content">
+            <h3 class="booking-title">{{ booking.accommodationName }}</h3>
+            <p class="booking-address">📍 {{ booking.address }}</p>
+            <div class="booking-details">
+              <div class="booking-detail-item">
+                <span class="detail-label">Érkezés:</span>
+                <span class="detail-value">{{ formatDate(booking.startDate) }}</span>
+              </div>
+              <div class="booking-detail-item">
+                <span class="detail-label">Távozás:</span>
+                <span class="detail-value">{{ formatDate(booking.endDate) }}</span>
+              </div>
+              <div class="booking-detail-item">
+                <span class="detail-label">Személyek:</span>
+                <span class="detail-value">{{ booking.persons }} fő</span>
+              </div>
+              <div class="booking-detail-item">
+                <span class="detail-label">Ár:</span>
+                <span class="detail-value price">{{ booking.totalPrice | number }} Ft</span>
+              </div>
+            </div>
+            <div class="booking-actions">
+              <button class="action-button edit-button" (click)="openEditModal(booking)">
+                ✏️ Módosítás
+              </button>
+              <button class="action-button delete-button" (click)="openDeleteModal(booking)">
+                🗑️ Törlés
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Edit Booking Modal -->
+<div *ngIf="showEditModal" class="modal-overlay" (click)="closeEditModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Foglalás Módosítása</h2>
+      <button class="modal-close" (click)="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="editBookingForm" (ngSubmit)="updateBooking()">
+        <div class="form-group">
+          <label class="form-label">Érkezés Dátuma</label>
+          <input 
+            type="date" 
+            class="form-input"
+            formControlName="startDate"
+            [class.input-error]="editBookingForm.get('startDate')?.invalid && editBookingForm.get('startDate')?.touched"
+          />
+          <span 
+            *ngIf="editBookingForm.get('startDate')?.invalid && editBookingForm.get('startDate')?.touched" 
+            class="error-text"
+          >
+            Az érkezés dátuma kötelező!
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Távozás Dátuma</label>
+          <input 
+            type="date" 
+            class="form-input"
+            formControlName="endDate"
+            [class.input-error]="editBookingForm.get('endDate')?.invalid && editBookingForm.get('endDate')?.touched"
+          />
+          <span 
+            *ngIf="editBookingForm.get('endDate')?.invalid && editBookingForm.get('endDate')?.touched" 
+            class="error-text"
+          >
+            A távozás dátuma kötelező!
+          </span>
+          <span 
+            *ngIf="editBookingForm.hasError('endDateBeforeStart') && editBookingForm.get('endDate')?.touched" 
+            class="error-text"
+          >
+            A távozás dátuma nem lehet korábbi az érkezésnél!
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Személyek Száma</label>
+          <input 
+            type="number" 
+            class="form-input"
+            formControlName="persons"
+            min="1"
+            [max]="selectedBooking?.maxCapacity"
+            [class.input-error]="editBookingForm.get('persons')?.invalid && editBookingForm.get('persons')?.touched"
+          />
+          <span 
+            *ngIf="editBookingForm.get('persons')?.invalid && editBookingForm.get('persons')?.touched" 
+            class="error-text"
+          >
+            {{ getPersonsErrorMessage() }}
+          </span>
+        </div>
+
+        <div class="calculated-price">
+          <span>Új teljes ár:</span>
+          <strong>{{ calculateNewPrice() | number }} Ft</strong>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="modal-button cancel-button" (click)="closeEditModal()">
+            Mégsem
+          </button>
+          <button 
+            type="submit" 
+            class="modal-button save-button"
+            [disabled]="editBookingForm.invalid || isLoading"
+          >
+            <span *ngIf="!isLoading">Mentés</span>
+            <span *ngIf="isLoading">Mentés...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+  <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Foglalás Törlése</h2>
+      <button class="modal-close" (click)="closeDeleteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="delete-warning">
+        Biztosan törölni szeretnéd ezt a foglalást?
+      </p>
+      <div class="delete-booking-info">
+        <strong>{{ selectedBooking?.accommodationName }}</strong>
+        <p>{{ formatDate(selectedBooking?.startDate) }} - {{ formatDate(selectedBooking?.endDate) }}</p>
+        <p>{{ selectedBooking?.persons }} fő · {{ selectedBooking?.totalPrice | number }} Ft</p>
+      </div>
+      <p class="delete-note">Ez a művelet nem visszavonható!</p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-button cancel-button" (click)="closeDeleteModal()">
+        Mégsem
+      </button>
+      <button 
+        type="button" 
+        class="modal-button delete-confirm-button"
+        (click)="deleteBooking()"
+        [disabled]="isLoading"
+      >
+        <span *ngIf="!isLoading">Törlés</span>
+        <span *ngIf="isLoading">Törlés...</span>
+      </button>
+    </div>
   </div>
 </div>
