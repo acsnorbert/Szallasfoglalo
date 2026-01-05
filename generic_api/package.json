@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev":"nodemon index"
+    "dev": "nodemon index"
   },
   "author": "",
   "license": "ISC",
@@ -22,7 +22,7 @@
     "fs": "^0.0.1-security",
     "multer": "^2.0.2",
     "mysql": "^2.18.1",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^7.0.12",
     "winston": "^3.19.0"
   },
   "devDependencies": {
