@@ -107,28 +107,41 @@ export class BookingComponent implements OnInit, AfterViewInit {
   }
 
   async loadCurrentUser(): Promise<void> {
-    try {
-      const userStr = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
-      if (userStr) {
-        this.currentUser = JSON.parse(userStr);
+  try {
+    const userStr = sessionStorage.getItem(environment.tokenName) || 
+                    localStorage.getItem(environment.tokenName);
+    
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      
+      if (Array.isArray(userData) && userData.length > 0) {
+        this.currentUser = {
+          id: userData[0].id,
+          name: userData[0].name,
+          email: userData[0].email,
+          role: userData[0].role
+        };
+        console.log('✅ Bejelentkezett user:', this.currentUser);
         return;
       }
       
-      const response = await this.apiService.selectAll('users');
-      if (response && response.status === 200 && response.data && response.data.length > 0) {
-        const demoUser = response.data.find((u: any) => u.role === 'user');
-        if (demoUser) {
-          this.currentUser = {
-            id: demoUser.id,
-            name: demoUser.name,
-            email: demoUser.email,
-            role: demoUser.role
-          };
-        }
+      if (userData.id) {
+        this.currentUser = {
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          role: userData.role
+        };
+        console.log('✅ Bejelentkezett user:', this.currentUser);
+        return;
       }
-    } catch (error) {
-      console.error('❌ Error loading user:', error);
     }
+    
+    this.currentUser = null;
+    
+  } catch (error) {
+    this.currentUser = null;
+  }
   }
 
   async loadAccommodations(): Promise<void> {

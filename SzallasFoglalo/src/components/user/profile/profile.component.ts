@@ -90,81 +90,87 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Bookings Methods - booking.component mintájára
   async loadBookings(): Promise<void> {
-    if (!this.currentUser || !this.currentUser[0]?.id) {
-      console.log('Nincs bejelentkezett user');
+  console.log('=== LOAD BOOKINGS START ===');
+  console.log('currentUser:', this.currentUser);
+  
+  if (!this.currentUser || !this.currentUser[0]?.id) {
+    console.log('❌ Nincs bejelentkezett user');
+    console.log('currentUser:', this.currentUser);
+    return;
+  }
+
+  this.bookingsLoading = true;
+  const userId = this.currentUser[0].id;
+  console.log('✅ userId:', userId, 'típus:', typeof userId);
+  
+  try {
+    // Lekérjük az összes foglalást
+    const bookingsResponse = await this.apiService.selectAll('bookings');
+    
+    if (!bookingsResponse || bookingsResponse.status !== 200 || !bookingsResponse.data) {
+      console.error('Hiba a foglalások lekérésénél');
+      this.bookings = [];
+      this.bookingsLoading = false;
       return;
     }
 
-    this.bookingsLoading = true;
-    const userId = this.currentUser[0].id;
+    console.log('Összes foglalás:', bookingsResponse.data);
+    console.log('Keresett userId:', userId, 'Típusa:', typeof userId);
+    
 
-    try {
-      // Lekérjük az összes foglalást
-      const bookingsResponse = await this.apiService.selectAll('bookings');
-      
-      if (!bookingsResponse || bookingsResponse.status !== 200 || !bookingsResponse.data) {
-        console.error('Hiba a foglalások lekérésénél');
-        this.bookings = [];
-        this.bookingsLoading = false;
-        return;
-      }
+    const userBookings = bookingsResponse.data.filter((b: any) => {
+      return Number(b.userId) === Number(userId); // ← VÁLTOZÁS: status szűrő eltávolítva
+    });
 
-      console.log('Összes foglalás:', bookingsResponse.data);
-      console.log('Keresett userId:', userId, 'Típusa:', typeof userId);
-      
-      // Szűrjük a user foglalásait és aktív státuszúakat
-      const userBookings = bookingsResponse.data.filter((b: any) => {
-        console.log(`Foglalás ID: ${b.id}, userId: ${b.userId} (${typeof b.userId}), status: ${b.status} (${typeof b.status})`);
-        console.log(`Összehasonlítás: ${b.userId} == ${userId} = ${b.userId == userId}`);
-        console.log(`Státusz: ${b.status} == 1 = ${b.status == 1}`);
-        return Number(b.userId) === Number(userId) && Number(b.status) === 1;
-      });
 
-      console.log('User foglalásai:', userBookings);
-
-      if (userBookings.length === 0) {
-        this.bookings = [];
-        this.bookingsLoading = false;
-        return;
-      }
-
-      // Lekérjük az összes szállást
-      const accommodationsResponse = await this.apiService.selectAll('accommodations');
-      const allAccommodations = accommodationsResponse?.data || [];
-
-      // Lekérjük az összes képet
-      const imagesResponse = await this.apiService.selectAll('accommodation_images');
-      const allImages = imagesResponse?.data || [];
-
-      // Összerakjuk a foglalásokat a szállás adataival
-      this.bookings = userBookings.map((booking: any) => {
-        const accommodation = allAccommodations.find((acc: any) => acc.id === booking.accommodationId);
-        const images = allImages.filter((img: any) => img.accommodationId === booking.accommodationId);
-        const mainImage = images.length > 0 ? images[0].imagePath : null;
-
-        return {
-          ...booking,
-          accommodationName: accommodation?.name || 'Ismeretlen szállás',
-          description: accommodation?.description || '',
-          address: accommodation?.address || '',
-          maxCapacity: accommodation?.maxCapacity || 0,
-          basePrice: accommodation?.basePrice || 0,
-          mainImage: mainImage
-        };
-      });
-
-      console.log('Feldolgozott foglalások:', this.bookings);
-      
-    } catch (error) {
-      console.error('Hiba a foglalások betöltésekor:', error);
-      this.showError('Hiba történt a foglalások betöltésekor!');
+    if (userBookings.length === 0) {
       this.bookings = [];
-    } finally {
       this.bookingsLoading = false;
+      return;
     }
+
+    // Lekérjük az összes szállást
+    const accommodationsResponse = await this.apiService.selectAll('accommodations');
+    const allAccommodations = accommodationsResponse?.data || [];
+
+    // Lekérjük az összes képet
+    const imagesResponse = await this.apiService.selectAll('accommodation_images');
+    const allImages = imagesResponse?.data || [];
+
+    // Összerakjuk a foglalásokat a szállás adataival
+    this.bookings = userBookings.map((booking: any) => {
+      const accommodation = allAccommodations.find((acc: any) => acc.id === booking.accommodationId);
+      const images = allImages.filter((img: any) => img.accommodationId === booking.accommodationId);
+      const mainImage = images.length > 0 ? images[0].imagePath : null;
+
+      return {
+        ...booking,
+        accommodationName: accommodation?.name || 'Ismeretlen szállás',
+        description: accommodation?.description || '',
+        address: accommodation?.address || '',
+        maxCapacity: accommodation?.maxCapacity || 0,
+        basePrice: accommodation?.basePrice || 0,
+        mainImage: mainImage,
+        isActive: Number(booking.status) === 1 // ← ÚJ: jelöljük meg az aktív foglalásokat
+      };
+    });
+
+    // Rendezzük: először aktív, utána inaktív foglalások
+    this.bookings.sort((a, b) => {
+      if (a.isActive === b.isActive) return 0;
+      return a.isActive ? -1 : 1; // Aktívak előre
+    });
+
+    
+  } catch (error) {
+    console.error('Hiba a foglalások betöltésekor:', error);
+    this.showError('Hiba történt a foglalások betöltésekor!');
+    this.bookings = [];
+  } finally {
+    this.bookingsLoading = false;
   }
+}
 
   openEditModal(booking: any): void {
     this.selectedBooking = booking;

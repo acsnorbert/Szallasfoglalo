@@ -197,55 +197,70 @@
     </div>
 
     <!-- ÚJ RÉSZ: Foglalásaim Section -->
-    <div class="profile-section">
-      <h2 class="section-title">Foglalásaim</h2>
+<div class="profile-section">
+  <h2 class="section-title">Foglalásaim</h2>
+  
+  <div *ngIf="bookingsLoading" class="bookings-loading">
+    <div class="loading-spinner">Foglalások betöltése...</div>
+  </div>
+
+  <div *ngIf="!bookingsLoading && bookings.length === 0" class="no-bookings">
+    <p>Még nincs foglalásod.</p>
+  </div>
+
+  <div *ngIf="!bookingsLoading && bookings.length > 0" class="bookings-grid">
+    <div *ngFor="let booking of bookings" 
+         class="booking-card" 
+         [class.inactive]="!booking.isActive">
       
-      <div *ngIf="bookingsLoading" class="bookings-loading">
-        <div class="loading-spinner">Foglalások betöltése...</div>
+      <!-- ÚJ: Inaktív jelző badge -->
+      <div *ngIf="!booking.isActive" class="inactive-badge">
+        Törölve
       </div>
 
-      <div *ngIf="!bookingsLoading && bookings.length === 0" class="no-bookings">
-        <p>Még nincs aktív foglalásod.</p>
+      <div class="booking-image">
+        <img [src]="getImagePath(booking.mainImage)" [alt]="booking.accommodationName" />
       </div>
-
-      <div *ngIf="!bookingsLoading && bookings.length > 0" class="bookings-grid">
-        <div *ngFor="let booking of bookings" class="booking-card">
-          <div class="booking-image">
-            <img [src]="getImagePath(booking.mainImage)" [alt]="booking.accommodationName" />
+      <div class="booking-content">
+        <h3 class="booking-title">{{ booking.accommodationName }}</h3>
+        <p class="booking-address">📍 {{ booking.address }}</p>
+        <div class="booking-details">
+          <div class="booking-detail-item">
+            <span class="detail-label">Érkezés:</span>
+            <span class="detail-value">{{ formatDate(booking.startDate) }}</span>
           </div>
-          <div class="booking-content">
-            <h3 class="booking-title">{{ booking.accommodationName }}</h3>
-            <p class="booking-address">📍 {{ booking.address }}</p>
-            <div class="booking-details">
-              <div class="booking-detail-item">
-                <span class="detail-label">Érkezés:</span>
-                <span class="detail-value">{{ formatDate(booking.startDate) }}</span>
-              </div>
-              <div class="booking-detail-item">
-                <span class="detail-label">Távozás:</span>
-                <span class="detail-value">{{ formatDate(booking.endDate) }}</span>
-              </div>
-              <div class="booking-detail-item">
-                <span class="detail-label">Személyek:</span>
-                <span class="detail-value">{{ booking.persons }} fő</span>
-              </div>
-              <div class="booking-detail-item">
-                <span class="detail-label">Ár:</span>
-                <span class="detail-value price">{{ booking.totalPrice | number }} Ft</span>
-              </div>
-            </div>
-            <div class="booking-actions">
-              <button class="action-button edit-button" (click)="openEditModal(booking)">
-                ✏️ Módosítás
-              </button>
-              <button class="action-button delete-button" (click)="openDeleteModal(booking)">
-                🗑️ Törlés
-              </button>
-            </div>
+          <div class="booking-detail-item">
+            <span class="detail-label">Távozás:</span>
+            <span class="detail-value">{{ formatDate(booking.endDate) }}</span>
           </div>
+          <div class="booking-detail-item">
+            <span class="detail-label">Személyek:</span>
+            <span class="detail-value">{{ booking.persons }} fő</span>
+          </div>
+          <div class="booking-detail-item">
+            <span class="detail-label">Ár:</span>
+            <span class="detail-value price">{{ booking.totalPrice | number }} Ft</span>
+          </div>
+        </div>
+        
+        <!-- ÚJ: Gombok csak aktív foglalásoknál -->
+        <div class="booking-actions" *ngIf="booking.isActive">
+          <button class="action-button edit-button" (click)="openEditModal(booking)">
+            ✏️ Módosítás
+          </button>
+          <button class="action-button delete-button" (click)="openDeleteModal(booking)">
+            🗑️ Törlés
+          </button>
+        </div>
+        
+        <!-- ÚJ: Inaktív státusz szöveg -->
+        <div class="inactive-status" *ngIf="!booking.isActive">
+          <p>Ez a foglalás törlésre került</p>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
   </div>
 </div>
