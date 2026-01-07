@@ -171,6 +171,20 @@
         </div>
       </div>
 
+      <!-- ÚJ: Foglalt dátumok megjelenítése -->
+      <div class="booked-dates-info" *ngIf="bookedDates.length > 0">
+        <div class="alert alert-info">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="alert-content">
+            <strong>Foglalt időszakok ennél a szállásnál:</strong>
+            <p class="booked-dates-list">{{ getBookedDatesDisplay() }}</p>
+          </div>
+        </div>
+      </div>
+
       <hr class="divider">
 
       <!-- Booking Form -->
@@ -182,7 +196,13 @@
               type="date" 
               class="form-control" 
               formControlName="startDate"
-              [min]="bookingForm.value.startDate">
+              [min]="getMinStartDate()"
+              (change)="onDateChange()">
+            <!-- ÚJ: Figyelmeztetés ha foglalt dátumot választott -->
+            <small class="form-hint error" 
+                   *ngIf="bookingForm.value.startDate && isDateBooked(bookingForm.value.startDate, selectedAccommodation?.id || 0)">
+              ⚠️ Ez a dátum már foglalt!
+            </small>
           </div>
 
           <div class="form-group">
@@ -191,7 +211,13 @@
               type="date" 
               class="form-control" 
               formControlName="endDate"
-              [min]="bookingForm.value.startDate">
+              [min]="getMinEndDate()"
+              (change)="onDateChange()">
+            <!-- ÚJ: Figyelmeztetés ha foglalt dátumot választott -->
+            <small class="form-hint error" 
+                   *ngIf="bookingForm.value.endDate && isDateBooked(bookingForm.value.endDate, selectedAccommodation?.id || 0)">
+              ⚠️ Ez a dátum már foglalt!
+            </small>
           </div>
         </div>
 
@@ -230,29 +256,31 @@
           </div>
         </div>
 
-        <!-- Availability Warning -->
+        <!-- Availability Warning - FRISSÍTETT -->
         <div class="warning-message" *ngIf="bookingForm.value.startDate && bookingForm.value.endDate && !isDateRangeAvailable()">
           <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
           </svg>
-          <span>Ez az időszak már foglalt! Kérlek válassz másik dátumot.</span>
+          <span>⚠️ Ez az időszak már foglalt! Kérlek válassz másik dátumot.</span>
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" (click)="closeBookingModal()">Mégse</button>
+          <button type="button" class="btn btn-secondary" (click)="closeBookingModal()">
+            Mégse
+          </button>
           <button 
             type="submit" 
             class="btn btn-primary" 
-            [disabled]="!bookingForm.valid || !isDateRangeAvailable() || calculateNights() === 0">
-            Foglalás megerősítése
+            [disabled]="!bookingForm.valid || !isDateRangeAvailable() || calculateNights() === 0 || isSavingBooking">
+            <span *ngIf="!isSavingBooking">Foglalás megerősítése</span>
+            <span *ngIf="isSavingBooking">Foglalás...</span>
           </button>
         </div>
       </form>
     </div>
   </div>
 </div>
-
 <!-- Lightbox -->
 <div class="lightbox-overlay" *ngIf="showLightbox" (click)="closeLightbox()">
   <button class="lightbox-close" (click)="closeLightbox()">
@@ -278,3 +306,9 @@
     </svg>
   </button>
 </div>
+
+
+
+
+
+
