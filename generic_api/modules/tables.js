@@ -178,15 +178,31 @@ router.post('/:table/registration', (req, res) => {
             return;
         }
 
-        query(`INSERT INTO ${table} (name, email, password, role) VALUES (?,?,?, 'user')`, [name, email, SHA1(password).toString()], (error, results) => {
+        query(`INSERT INTO ${table} (name, email, password, role) VALUES (?,?,?, 'user')`, [name, email, SHA1(password).toString()], async (error, results) => {
 
             if (error) return res.status(500).json({ errno: error.errno, msg: 'Hiba történt az adatbázis lekérdezése közben.', error: error.message });
+            
+            // Email küldése
+            try {
+                const html = await renderTemplate('registration', { name, email });
+                
+                await transporter.sendMail({
+                    from: '"Szállásfoglaló" <noreply@szallasfoglalo.hu>',
+                    to: email,
+                    subject: 'Sikeres regisztráció - Szállásfoglaló',
+                    html: html
+                });
+                
+                console.log(`Regisztrációs email elküldve: ${email}`);
+            } catch (emailError) {
+                console.error('Email küldési hiba:', emailError);
+                // Ne szakítsd meg a regisztrációt, ha az email küldés sikertelen
+            }
+            
             res.status(200).send(results)
         }, req);
 
     }, req);
-
-    // TODO: Validáció
 });
 
 // ADD NEW record to :table

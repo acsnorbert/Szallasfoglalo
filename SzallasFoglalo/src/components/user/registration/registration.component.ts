@@ -5,16 +5,15 @@ import { Router, RouterLink } from '@angular/router';
 import { User } from '../../../interfaces/user';
 import { ApiService } from '../../../services/api';
 import { MessageService } from '../../../services/message';
-import { EmailService } from '../../../services/email';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink,FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
-export class RegistrationComponent{
+export class RegistrationComponent {
   
   acceptTerms: boolean = false;
 
@@ -29,44 +28,59 @@ export class RegistrationComponent{
   constructor(
     private api: ApiService,
     private message: MessageService,
-    private router: Router,
-    private email: EmailService
+    private router: Router
   ) {}
 
-
-    registration() {
-      if (!this.acceptTerms) {
-        this.message.show('danger', 'Hiba', 'El kell fogadnod a szabályzatot!');
-        return;
-      }
-  
-      this.api.registration('users', this.newUser).then(res => {
-        if (res.status == 500){
-          this.message.show('danger', 'Hiba', res.message);
-          return;
-        }
-  
-        let data = {
-          "template": "registration",
-          "to": this.newUser.email,
-          "subject": "Sikeres regisztráció",
-          "data": {
-              "username": this.newUser.name,
-              "email": this.newUser.email,
-              "password": this.newUser.password,
-              "url": "http://localhost:4200"
-          }
-      }
-  
-        /*this.api.sendmail(data);*/
-  
-        this.message.show('success', 'Ok', res.message);
-        /*this.email.sendEmail('registration',this.newUser.email,'Üdvözlünk','aa').subscribe({
-          next: () => alert('Email elküldve!'),
-          error: (err) => alert('Hiba: ' + err.error.error)
-        });*/
-        this.router.navigate(['/login']);
-      })
+  async registration() {
+    // Validációk
+    if (!this.acceptTerms) {
+      this.message.show('danger', 'Hiba', 'El kell fogadnod a szabályzatot!');
+      return;
     }
-  
+
+    if (!this.newUser.name || !this.newUser.email || !this.newUser.password || !this.newUser.confirm) {
+      this.message.show('danger', 'Hiba', 'Minden mező kitöltése kötelező!');
+      return;
+    }
+
+    if (this.newUser.password !== this.newUser.confirm) {
+      this.message.show('danger', 'Hiba', 'A jelszavak nem egyeznek!');
+      return;
+    }
+
+    // Regisztráció
+    const res = await this.api.registration('users', this.newUser);
+    
+    if (res.status === 500) {
+      this.message.show('danger', 'Hiba', res.message);
+      return;
+    }
+
+    // Email küldése sikeres regisztráció után
+    const emailData = {
+      template: 'registration',
+      to: this.newUser.email,
+      subject: 'Sikeres regisztráció - Szállásfoglaló',
+      data: {
+        name: this.newUser.name,
+        email: this.newUser.email,
+        password:this.newUser.password,
+        url: 'http://localhost:4200/login',
+        company: 'Szállásfoglaló'
+      }
+    };
+
+    const emailRes = await this.api.sendmail(emailData);
+    
+    if (emailRes.status === 200) {
+      console.log('Email sikeresen elküldve!');
+      this.message.show('success', 'Siker', 'Sikeres regisztráció! Ellenőrizd az email fiókodat!');
+    } else {
+      console.error('Email küldési hiba:', emailRes.message);
+      this.message.show('warning', 'Figyelem', 'Regisztráció sikeres, de az email küldése nem sikerült.');
+    }
+
+    // Átirányítás a login oldalra
+    this.router.navigate(['/login']);
+  }
 }

@@ -7,11 +7,13 @@ withDefaultRegisterables,
 } from 'ng2-charts';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AdminDashboardComponent } from '../components/admin/admin-dashboard/admin-dashboard';
+import { provideHttpClient } from '@angular/common/http';
 
 bootstrapApplication(AdminDashboardComponent, { providers: [ provideCharts(withDefaultRegisterables()), ], }).catch((err) => console.error(err));
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(),
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(
       routes,
