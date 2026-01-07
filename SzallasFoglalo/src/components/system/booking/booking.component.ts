@@ -389,73 +389,116 @@ export class BookingComponent implements OnInit, AfterViewInit {
   }
 
   async saveBooking(): Promise<void> {
-    if (!this.bookingForm.valid || !this.selectedAccommodation || !this.currentUser) {
-      this.messageService.show('warning', 'Hiányzó adatok', 'Kérlek töltsd ki az összes kötelező mezőt!');
-      return;
-    }
-
-    const startDate = new Date(this.bookingForm.value.startDate);
-    const endDate = new Date(this.bookingForm.value.endDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (startDate < today) {
-      this.messageService.show('warning', 'Érvénytelen dátum', 'A kezdő dátum nem lehet a múltban!');
-      return;
-    }
-
-    if (endDate <= startDate) {
-      this.messageService.show('warning', 'Érvénytelen dátum', 'A befejező dátumnak későbbinek kell lennie a kezdő dátumnál!');
-      return;
-    }
-
-    if (this.bookingForm.value.persons > this.selectedAccommodation.maxCapacity) {
-      this.messageService.show('warning', 'Túl sok személy', `Maximum ${this.selectedAccommodation.maxCapacity} fő foglalható!`);
-      return;
-    }
-
-    if (!this.isDateRangeAvailable()) {
-      this.messageService.show('warning', 'Foglalt időszak', 'Ez az időszak már foglalt ennél a szállásnál!');
-      return;
-    }
-
-    const totalPrice = this.calculateTotalPrice();
-    const nights = this.calculateNights();
-
-    const bookingData: Booking = {
-      userId: this.currentUser.id,
-      accommodationId: this.selectedAccommodation.id,
-      startDate: this.bookingForm.value.startDate,
-      endDate: this.bookingForm.value.endDate,
-      persons: this.bookingForm.value.persons,
-      totalPrice: totalPrice,
-      status: 1
-    };
-
-    this.isSavingBooking = true;
-
-    try {
-      const response = await this.apiService.insert('bookings', bookingData);
-      
-      if (response && response.status === 200) {
-  this.messageService.show(
-  'success',
-  'Sikeres szállásfoglalás!',
-  'Foglalását megtekintheti a profiljában.'
-);
-
-await this.loadBookings();
-this.closeBookingModal();
-} else {
-        this.messageService.show('danger', 'Hiba', response?.message || 'Hiba történt a foglalás során!');
-      }
-    } catch (error) {
-      this.messageService.show('danger', 'Hiba', 'Hiba történt a foglalás létrehozása során!');
-      console.error('💥 Booking error:', error);
-    } finally {
-      this.isSavingBooking = false;
-    }
+  if (!this.bookingForm.valid || !this.selectedAccommodation || !this.currentUser) {
+    this.messageService.show('warning', 'Hiányzó adatok', 'Kérlek töltsd ki az összes kötelező mezőt!');
+    return;
   }
+
+  const startDate = new Date(this.bookingForm.value.startDate);
+  const endDate = new Date(this.bookingForm.value.endDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (startDate < today) {
+    this.messageService.show('warning', 'Érvénytelen dátum', 'A kezdő dátum nem lehet a múltban!');
+    return;
+  }
+
+  if (endDate <= startDate) {
+    this.messageService.show('warning', 'Érvénytelen dátum', 'A befejező dátumnak későbbinek kell lennie a kezdő dátumnál!');
+    return;
+  }
+
+  if (this.bookingForm.value.persons > this.selectedAccommodation.maxCapacity) {
+    this.messageService.show('warning', 'Túl sok személy', `Maximum ${this.selectedAccommodation.maxCapacity} fő foglalható!`);
+    return;
+  }
+
+  if (!this.isDateRangeAvailable()) {
+    this.messageService.show('warning', 'Foglalt időszak', 'Ez az időszak már foglalt ennél a szállásnál!');
+    return;
+  }
+
+  const totalPrice = this.calculateTotalPrice();
+  const nights = this.calculateNights();
+
+  const bookingData: Booking = {
+    userId: this.currentUser.id,
+    accommodationId: this.selectedAccommodation.id,
+    startDate: this.bookingForm.value.startDate,
+    endDate: this.bookingForm.value.endDate,
+    persons: this.bookingForm.value.persons,
+    totalPrice: totalPrice,
+    status: 1
+  };
+
+  this.isSavingBooking = true;
+
+  try {
+    // Mentés az adatbázisba
+    const response = await this.apiService.insert('bookings', bookingData);
+    
+    if (response && response.status === 200) {
+      
+      // Email küldése
+      try {
+        const emailData = {
+          template: 'booking-confirmation',
+          to: this.currentUser.email,
+          subject: 'Foglalás megerősítése - Szállásfoglaló',
+          data: {
+            userName: this.currentUser.name,
+            accommodationName: this.selectedAccommodation.name,
+            accommodationAddress: this.selectedAccommodation.address,
+            startDate: this.formatDate(this.bookingForm.value.startDate),
+            endDate: this.formatDate(this.bookingForm.value.endDate),
+            nights: nights,
+            persons: this.bookingForm.value.persons,
+            totalPrice: totalPrice.toLocaleString('hu-HU')
+          }
+        };
+
+        const emailResponse = await this.apiService.sendmail(emailData);
+        
+        if (emailResponse && emailResponse.status === 200) {
+          console.log('Email sikeresen elküldve');
+        } else {
+          console.warn('Email küldés sikertelen, de a foglalás mentve');
+        }
+      } catch (emailError) {
+        console.error('Email küldési hiba:', emailError);
+        // Ne szakítsuk meg a folyamatot, ha az email nem megy el
+      }
+
+      
+      this.messageService.show(
+        'success',
+        'Sikeres szállásfoglalás!',
+        'Foglalását megtekintheti a profiljában. Megerősítő emailt küldtünk!'
+      );
+
+      await this.loadBookings();
+      this.closeBookingModal();
+      
+    } else {
+      this.messageService.show('danger', 'Hiba', response?.message || 'Hiba történt a foglalás során!');
+    }
+  } catch (error) {
+    this.messageService.show('danger', 'Hiba', 'Hiba történt a foglalás létrehozása során!');
+    console.error('💥 Booking error:', error);
+  } finally {
+    this.isSavingBooking = false;
+  }
+}
+
+
+private formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}. ${month}. ${day}.`;
+}
 
   openLightbox(images: string[], index: number): void {
     if (images.length === 0) return;
