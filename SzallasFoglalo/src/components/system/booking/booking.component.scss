@@ -37,7 +37,81 @@
   max-width: 1400px;
   margin: 0 auto;
 }
+.booked-dates-info {
+    margin: 15px 0;
+  }
 
+  .alert {
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .alert-info {
+    background-color: #e3f2fd;
+    border: 1px solid #90caf9;
+    color: #1976d2;
+  }
+
+  .alert-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .alert-content {
+    flex: 1;
+  }
+
+  .alert-content strong {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+
+  .booked-dates-list {
+    margin: 5px 0 0 0;
+    font-size: 0.9em;
+    line-height: 1.6;
+  }
+
+  /* Hibaüzenet foglalt dátumhoz */
+  .form-hint.error {
+    color: #d32f2f;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+  }
+
+  /* Date input piros border ha foglalt */
+  input[type="date"].ng-touched.ng-invalid {
+    border-color: #d32f2f;
+  }
+
+  /* Warning message stílus javítás */
+  .warning-message {
+    background-color: #fff3e0;
+    border: 1px solid #ff9800;
+    color: #e65100;
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 15px 0;
+  }
+
+  .warning-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    color: #ff9800;
+  }
 
 // Page Header
 .page-header {
