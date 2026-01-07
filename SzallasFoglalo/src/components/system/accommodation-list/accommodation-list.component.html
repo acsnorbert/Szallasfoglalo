@@ -49,10 +49,6 @@
               [(ngModel)]="filters.capacity"
               (input)="applyFilters()">
           </div>
-          <div class="filter-group">
-            <label for="availableDate">📅 Elérhető dátum</label>
-            <input type="date" id="availableDate">
-          </div>
         </div>
 
         <div class="sort-section">
@@ -76,18 +72,7 @@
               (click)="setSortBy('capacity')">
               Férőhely szerint
             </button>
-            <button 
-              class="sort-btn" 
-              [class.active]="activeSortBtn === 'default'"
-              (click)="setSortBy('default')">
-              Alapértelmezett
-            </button>
           </div>
-        </div>
-
-        <div class="action-buttons">
-          <button class="btn btn-primary" (click)="applyFilters()">🔍 Szűrés alkalmazása</button>
-          <button class="btn btn-secondary" (click)="resetFilters()">↻ Alapértelmezés</button>
         </div>
       </div>
     </div>
@@ -139,7 +124,7 @@
               </div>
             </div>
 
-            <button class="card-button">Részletek</button>
+            <button class="card-button" (click)="openModal(acc)">Részletek</button>
           </div>
         </div>
       </div>
@@ -152,3 +137,109 @@
     </div>
   </section>
 </ng-container>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()" *ngIf="selectedAccommodation">
+    <button class="modal-close" (click)="closeModal()">✕</button>
+    
+    <div class="modal-content">
+      <!-- Image Gallery -->
+      <div class="modal-gallery">
+        <div class="gallery-main">
+          <img 
+            [src]="selectedAccommodation.images[currentImageIndex] || 'https://via.placeholder.com/800x500'" 
+            [alt]="selectedAccommodation.title">
+          
+          <button 
+            class="gallery-nav gallery-prev" 
+            (click)="previousImage()"
+            *ngIf="selectedAccommodation.images.length > 1">
+            ‹
+          </button>
+          <button 
+            class="gallery-nav gallery-next" 
+            (click)="nextImage()"
+            *ngIf="selectedAccommodation.images.length > 1">
+            ›
+          </button>
+          
+          <div class="gallery-counter" *ngIf="selectedAccommodation.images.length > 1">
+            {{ currentImageIndex + 1 }} / {{ selectedAccommodation.images.length }}
+          </div>
+        </div>
+        
+        <div class="gallery-thumbnails" *ngIf="selectedAccommodation.images.length > 1">
+          <div 
+            class="thumbnail" 
+            *ngFor="let img of selectedAccommodation.images; let i = index"
+            [class.active]="i === currentImageIndex"
+            (click)="selectImage(i)">
+            <img [src]="img" [alt]="selectedAccommodation.title">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Details -->
+      <div class="modal-details">
+        <div class="modal-header">
+          <div class="modal-stars">
+            <span class="star" *ngFor="let i of [1,2,3,4,5]">★</span>
+          </div>
+          <h2>{{ selectedAccommodation.title }}</h2>
+          <p class="modal-location">📍 {{ selectedAccommodation.location }}</p>
+        </div>
+        
+        <div class="modal-description">
+          <h3>Leírás</h3>
+          <p>{{ selectedAccommodation.longDescription || selectedAccommodation.description }}</p>
+        </div>
+        
+        <div class="modal-features">
+          <h3>Főbb jellemzők</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <span class="feature-icon">👥</span>
+              <div>
+                <strong>Férőhely</strong>
+                <span>{{ selectedAccommodation.capacity }} fő</span>
+              </div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">🛏️</span>
+              <div>
+                <strong>Ágyak</strong>
+                <span>{{ selectedAccommodation.bedType }}</span>
+              </div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">📶</span>
+              <div>
+                <strong>WiFi</strong>
+                <span>Ingyenes</span>
+              </div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">🅿️</span>
+              <div>
+                <strong>Parkolás</strong>
+                <span>Elérhető</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <div class="modal-price" style="padding-right: 20px;">
+            <span class="price-label">Ár:</span>
+            <span class="price-value">{{ selectedAccommodation.price | number:'1.0-0' }} Ft<span class="price-unit">/éjszaka</span></span>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-secondary" (click)="closeModal()">Bezárás</button>
+            <a href="/booking"><button class="btn btn-primary">Foglalás</button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

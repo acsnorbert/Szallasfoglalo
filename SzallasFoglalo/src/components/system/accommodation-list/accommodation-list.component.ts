@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api';
 import { environment } from '../../../environments/environment';
 
-
-
 interface FilterOptions {
   location: string;
   capacity: number;
@@ -25,6 +23,11 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
   filteredAccommodations: any[] = [];
   isLoading: boolean = true;
   errorMessage: string = '';
+  
+  // Modal state
+  isModalOpen: boolean = false;
+  selectedAccommodation: any = null;
+  currentImageIndex: number = 0;
   
   filters: FilterOptions = {
     location: '',
@@ -54,11 +57,8 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
       this.isLoading = true;
       this.errorMessage = '';
       
-      
       const response = await this.apiService.selectAll('accommodations');
-      
 
-      
       if (response && response.status === 200) {
         
         if (!response.data) {
@@ -81,10 +81,7 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
           return;
         }
 
-
-
         const activeAccommodations = response.data.filter((acc: any) => acc.isActive === 1);
-        
 
         if (activeAccommodations.length === 0) {
           console.warn('⚠️ No active accommodations found');
@@ -103,6 +100,7 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
               id: acc.id,
               title: acc.name,
               description: acc.shortDescription,
+              longDescription: acc.longDescription,
               location: acc.address,
               capacity: acc.maxCapacity,
               price: acc.basePrice,
@@ -116,8 +114,6 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
         );
 
         this.filteredAccommodations = [...this.accommodations];
-        
-
         
       } else {
         console.error('❌ API error response:', response);
@@ -134,7 +130,6 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
-      
     }
   }
 
@@ -157,7 +152,6 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
   }
 
   applyFilters(): void {
-    
     this.filteredAccommodations = this.accommodations.filter(acc => {
       const locationMatch = !this.filters.location || 
         acc.location.toLowerCase().includes(this.filters.location.toLowerCase());
@@ -169,7 +163,6 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
     });
 
     this.sortAccommodations();
-    
   }
 
   sortAccommodations(): void {
@@ -210,5 +203,38 @@ export class AccommodationListComponent implements OnInit, AfterViewInit {
     };
     this.activeSortBtn = 'default';
     this.filteredAccommodations = [...this.accommodations];
+  }
+
+  // Modal functions
+  openModal(accommodation: any): void {
+    this.selectedAccommodation = accommodation;
+    this.currentImageIndex = 0;
+    this.isModalOpen = true;
+    document.body.style.overflow = 'hidden'; // Disable scroll
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedAccommodation = null;
+    this.currentImageIndex = 0;
+    document.body.style.overflow = 'auto'; // Enable scroll
+  }
+
+  nextImage(): void {
+    if (this.selectedAccommodation && this.selectedAccommodation.images.length > 0) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.selectedAccommodation.images.length;
+    }
+  }
+
+  previousImage(): void {
+    if (this.selectedAccommodation && this.selectedAccommodation.images.length > 0) {
+      this.currentImageIndex = this.currentImageIndex === 0 
+        ? this.selectedAccommodation.images.length - 1 
+        : this.currentImageIndex - 1;
+    }
+  }
+
+  selectImage(index: number): void {
+    this.currentImageIndex = index;
   }
 }
