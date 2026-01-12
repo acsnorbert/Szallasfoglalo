@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -39,6 +39,16 @@ interface User {
   role: string;
 }
 
+interface CalendarDay {
+  date: Date;
+  day: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isSelected: boolean;
+  isBooked: boolean;
+  isDisabled: boolean;
+}
+
 @Component({
   selector: 'app-booking',
   standalone: true,
@@ -74,6 +84,12 @@ export class BookingComponent implements OnInit, AfterViewInit {
 
   // Foglalt dátumok tárolása
   bookedDates: string[] = [];
+
+  // Egyedi naptár állapotok
+  showStartCalendar = false;
+  showEndCalendar = false;
+  startCalendarMonth: Date = new Date();
+  endCalendarMonth: Date = new Date();
 
   constructor(
     private fb: FormBuilder,
@@ -111,7 +127,7 @@ export class BookingComponent implements OnInit, AfterViewInit {
       minCapacity: [1]
     });
 
-    // Figyelés a startDate változásokra
+    // Figyelés a dátum változásokra
     this.bookingForm.get('startDate')?.valueChanges.subscribe(() => {
       this.onDateChange();
     });
@@ -241,7 +257,7 @@ export class BookingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ÚJ: Foglalt dátumok számítása egy adott szálláshoz
+  // Foglalt dátumok számítása egy adott szálláshoz
   getBookedDatesForAccommodation(accommodationId: number): string[] {
     const bookedDates: string[] = [];
     
@@ -265,15 +281,9 @@ export class BookingComponent implements OnInit, AfterViewInit {
     return bookedDates;
   }
 
-  // ÚJ: Ellenőrzi, hogy egy adott dátum foglalt-e
+  // Ellenőrzi, hogy egy adott dátum foglalt-e
   isDateBooked(date: string, accommodationId: number): boolean {
     return this.getBookedDatesForAccommodation(accommodationId).includes(date);
-  }
-
-  // ÚJ: CSS osztály hozzáadása a dátum input-hoz
-  getDateInputClass(date: string): string {
-    if (!this.selectedAccommodation) return '';
-    return this.isDateBooked(date, this.selectedAccommodation.id) ? 'booked-date' : '';
   }
 
   filterAccommodations(): void {
@@ -316,12 +326,11 @@ export class BookingComponent implements OnInit, AfterViewInit {
       endDate: tomorrow.toISOString().split('T')[0]
     });
     
-    this.showBookingModal = true;
+    // Naptár hónapok inicializálása
+    this.startCalendarMonth = new Date();
+    this.endCalendarMonth = new Date();
     
-    // Kis késleltetés után alkalmazzuk a stílust
-    setTimeout(() => {
-      this.applyBookedDateStyles();
-    }, 100);
+    this.showBookingModal = true;
   }
 
   closeBookingModal(): void {
@@ -329,31 +338,211 @@ export class BookingComponent implements OnInit, AfterViewInit {
     this.selectedAccommodation = null;
     this.bookingForm.reset();
     this.bookedDates = [];
+    this.showStartCalendar = false;
+    this.showEndCalendar = false;
   }
 
-  // ÚJ: Foglalt dátumok vizuális jelölése
-  applyBookedDateStyles(): void {
-    if (!this.selectedAccommodation) return;
+  // ===== EGYEDI NAPTÁR METÓDUSOK =====
 
-    // CSS változó beállítása a foglalt dátumokhoz
-    const style = document.createElement('style');
-    style.id = 'booked-dates-style';
-    
-    // Eltávolítjuk a régi stílust ha létezik
-    const oldStyle = document.getElementById('booked-dates-style');
-    if (oldStyle) {
-      oldStyle.remove();
+  toggleCalendar(type: 'start' | 'end'): void {
+    if (type === 'start') {
+      this.showStartCalendar = !this.showStartCalendar;
+      this.showEndCalendar = false;
+      
+      // Ha van kiválasztott dátum, annak hónapját mutatjuk
+      if (this.bookingForm.value.startDate) {
+        this.startCalendarMonth = new Date(this.bookingForm.value.startDate);
+      } else {
+        this.startCalendarMonth = new Date();
+      }
+    } else {
+      this.showEndCalendar = !this.showEndCalendar;
+      this.showStartCalendar = false;
+      
+      if (this.bookingForm.value.endDate) {
+        this.endCalendarMonth = new Date(this.bookingForm.value.endDate);
+      } else if (this.bookingForm.value.startDate) {
+        // Ha van kezdő dátum, annak hónapját mutatjuk
+        this.endCalendarMonth = new Date(this.bookingForm.value.startDate);
+      } else {
+        this.endCalendarMonth = new Date();
+      }
     }
-
-    let css = '';
-    this.bookedDates.forEach(date => {
-      // Ez a CSS nem fog működni közvetlenül a date input-on
-      // de CSS custom property-vel jelezhetjük
-    });
-
-    style.innerHTML = css;
-    document.head.appendChild(style);
   }
+
+  getCalendarDays(type: 'start' | 'end'): CalendarDay[] {
+    const month = type === 'start' ? this.startCalendarMonth : this.endCalendarMonth;
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth();
+    
+    const firstDay = new Date(year, monthIndex, 1);
+    const lastDay = new Date(year, monthIndex + 1, 0);
+    
+    // Hétfővel kezdjük (0 = vasárnap, 1 = hétfő)
+    let firstDayOfWeek = firstDay.getDay();
+    firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    
+    const days: CalendarDay[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Előző hónap napjai
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      const date = new Date(year, monthIndex, -i);
+      days.push(this.createCalendarDay(date, false, type, today));
+    }
+    
+    // Aktuális hónap napjai
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const date = new Date(year, monthIndex, day);
+      days.push(this.createCalendarDay(date, true, type, today));
+    }
+    
+    // Következő hónap napjai (hogy kitöltsük a rácsot)
+    const remainingDays = 42 - days.length; // 6 sor × 7 nap
+    for (let day = 1; day <= remainingDays; day++) {
+      const date = new Date(year, monthIndex + 1, day);
+      days.push(this.createCalendarDay(date, false, type, today));
+    }
+    
+    return days;
+  }
+
+  createCalendarDay(date: Date, isCurrentMonth: boolean, type: 'start' | 'end', today: Date): CalendarDay {
+    const dateStr = this.dateToString(date);
+    const selectedDate = type === 'start' 
+      ? this.bookingForm.value.startDate 
+      : this.bookingForm.value.endDate;
+    
+    const isToday = date.getTime() === today.getTime();
+    const isSelected = dateStr === selectedDate;
+    const isBooked = this.selectedAccommodation 
+      ? this.isDateBooked(dateStr, this.selectedAccommodation.id)
+      : false;
+    
+    // Múltbéli dátumok letiltása
+    let isDisabled = date < today;
+    
+    // Távozás esetén a kezdő dátum előtti napok letiltása
+    if (type === 'end' && this.bookingForm.value.startDate) {
+      const startDate = new Date(this.bookingForm.value.startDate);
+      isDisabled = isDisabled || date <= startDate;
+    }
+    
+    return {
+      date,
+      day: date.getDate(),
+      isCurrentMonth,
+      isToday,
+      isSelected,
+      isBooked,
+      isDisabled
+    };
+  }
+
+  selectDate(type: 'start' | 'end', day: CalendarDay): void {
+    if (day.isDisabled || day.isBooked) {
+      if (day.isBooked) {
+        this.messageService.show('warning', 'Foglalt dátum', 'Ez a dátum már foglalt!');
+      }
+      return;
+    }
+    
+    const dateStr = this.dateToString(day.date);
+    
+    if (type === 'start') {
+      this.bookingForm.patchValue({ startDate: dateStr });
+      this.showStartCalendar = false;
+      
+      // Ha a végdátum korábbi mint az új kezdő dátum, állítsuk át
+      if (this.bookingForm.value.endDate) {
+        const endDate = new Date(this.bookingForm.value.endDate);
+        if (day.date >= endDate) {
+          const nextDay = new Date(day.date);
+          nextDay.setDate(nextDay.getDate() + 1);
+          this.bookingForm.patchValue({ 
+            endDate: this.dateToString(nextDay)
+          });
+        }
+      }
+    } else {
+      this.bookingForm.patchValue({ endDate: dateStr });
+      this.showEndCalendar = false;
+    }
+    
+    this.onDateChange();
+  }
+
+  previousMonth(type: 'start' | 'end'): void {
+    if (type === 'start') {
+      this.startCalendarMonth = new Date(
+        this.startCalendarMonth.getFullYear(),
+        this.startCalendarMonth.getMonth() - 1,
+        1
+      );
+    } else {
+      this.endCalendarMonth = new Date(
+        this.endCalendarMonth.getFullYear(),
+        this.endCalendarMonth.getMonth() - 1,
+        1
+      );
+    }
+  }
+
+  nextMonth(type: 'start' | 'end'): void {
+    if (type === 'start') {
+      this.startCalendarMonth = new Date(
+        this.startCalendarMonth.getFullYear(),
+        this.startCalendarMonth.getMonth() + 1,
+        1
+      );
+    } else {
+      this.endCalendarMonth = new Date(
+        this.endCalendarMonth.getFullYear(),
+        this.endCalendarMonth.getMonth() + 1,
+        1
+      );
+    }
+  }
+
+  getMonthYearDisplay(type: 'start' | 'end'): string {
+    const month = type === 'start' ? this.startCalendarMonth : this.endCalendarMonth;
+    const monthNames = [
+      'Január', 'Február', 'Március', 'Április', 'Május', 'Június',
+      'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December'
+    ];
+    return `${monthNames[month.getMonth()]} ${month.getFullYear()}`;
+  }
+
+  formatDisplayDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}. ${month}. ${day}.`;
+  }
+
+  dateToString(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Klikk kezelés a naptáron kívül - bezárja a naptárat
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.custom-date-picker');
+    
+    if (!clickedInside) {
+      this.showStartCalendar = false;
+      this.showEndCalendar = false;
+    }
+  }
+
+  // ===== FOGLALÁS METÓDUSOK =====
 
   calculateNights(): number {
     const start = new Date(this.bookingForm.value.startDate);
@@ -389,116 +578,116 @@ export class BookingComponent implements OnInit, AfterViewInit {
   }
 
   async saveBooking(): Promise<void> {
-  if (!this.bookingForm.valid || !this.selectedAccommodation || !this.currentUser) {
-    this.messageService.show('warning', 'Hiányzó adatok', 'Kérlek töltsd ki az összes kötelező mezőt!');
-    return;
-  }
-
-  const startDate = new Date(this.bookingForm.value.startDate);
-  const endDate = new Date(this.bookingForm.value.endDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  if (startDate < today) {
-    this.messageService.show('warning', 'Érvénytelen dátum', 'A kezdő dátum nem lehet a múltban!');
-    return;
-  }
-
-  if (endDate <= startDate) {
-    this.messageService.show('warning', 'Érvénytelen dátum', 'A befejező dátumnak későbbinek kell lennie a kezdő dátumnál!');
-    return;
-  }
-
-  if (this.bookingForm.value.persons > this.selectedAccommodation.maxCapacity) {
-    this.messageService.show('warning', 'Túl sok személy', `Maximum ${this.selectedAccommodation.maxCapacity} fő foglalható!`);
-    return;
-  }
-
-  if (!this.isDateRangeAvailable()) {
-    this.messageService.show('warning', 'Foglalt időszak', 'Ez az időszak már foglalt ennél a szállásnál!');
-    return;
-  }
-
-  const totalPrice = this.calculateTotalPrice();
-  const nights = this.calculateNights();
-
-  const bookingData: Booking = {
-    userId: this.currentUser.id,
-    accommodationId: this.selectedAccommodation.id,
-    startDate: this.bookingForm.value.startDate,
-    endDate: this.bookingForm.value.endDate,
-    persons: this.bookingForm.value.persons,
-    totalPrice: totalPrice,
-    status: 1
-  };
-
-  this.isSavingBooking = true;
-
-  try {
-    // Mentés az adatbázisba
-    const response = await this.apiService.insert('bookings', bookingData);
-    
-    if (response && response.status === 200) {
-      
-      // Email küldése
-      try {
-        const emailData = {
-          template: 'booking-confirmation',
-          to: this.currentUser.email,
-          subject: 'Foglalás megerősítése - Szállásfoglaló',
-          data: {
-            userName: this.currentUser.name,
-            accommodationName: this.selectedAccommodation.name,
-            accommodationAddress: this.selectedAccommodation.address,
-            startDate: this.formatDate(this.bookingForm.value.startDate),
-            endDate: this.formatDate(this.bookingForm.value.endDate),
-            nights: nights,
-            persons: this.bookingForm.value.persons,
-            totalPrice: totalPrice.toLocaleString('hu-HU')
-          }
-        };
-
-        const emailResponse = await this.apiService.sendmail(emailData);
-        
-        if (emailResponse && emailResponse.status === 200) {
-          console.log('Email sikeresen elküldve');
-        } else {
-          console.warn('Email küldés sikertelen, de a foglalás mentve');
-        }
-      } catch (emailError) {
-        console.error('Email küldési hiba:', emailError);
-        // Ne szakítsuk meg a folyamatot, ha az email nem megy el
-      }
-
-      
-      this.messageService.show(
-        'success',
-        'Sikeres szállásfoglalás!',
-        'Foglalását megtekintheti a profiljában. Megerősítő emailt küldtünk!'
-      );
-
-      await this.loadBookings();
-      this.closeBookingModal();
-      
-    } else {
-      this.messageService.show('danger', 'Hiba', response?.message || 'Hiba történt a foglalás során!');
+    if (!this.bookingForm.valid || !this.selectedAccommodation || !this.currentUser) {
+      this.messageService.show('warning', 'Hiányzó adatok', 'Kérlek töltsd ki az összes kötelező mezőt!');
+      return;
     }
-  } catch (error) {
-    this.messageService.show('danger', 'Hiba', 'Hiba történt a foglalás létrehozása során!');
-    console.error('💥 Booking error:', error);
-  } finally {
-    this.isSavingBooking = false;
+
+    const startDate = new Date(this.bookingForm.value.startDate);
+    const endDate = new Date(this.bookingForm.value.endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (startDate < today) {
+      this.messageService.show('warning', 'Érvénytelen dátum', 'A kezdő dátum nem lehet a múltban!');
+      return;
+    }
+
+    if (endDate <= startDate) {
+      this.messageService.show('warning', 'Érvénytelen dátum', 'A befejező dátumnak későbbinek kell lennie a kezdő dátumnál!');
+      return;
+    }
+
+    if (this.bookingForm.value.persons > this.selectedAccommodation.maxCapacity) {
+      this.messageService.show('warning', 'Túl sok személy', `Maximum ${this.selectedAccommodation.maxCapacity} fő foglalható!`);
+      return;
+    }
+
+    if (!this.isDateRangeAvailable()) {
+      this.messageService.show('warning', 'Foglalt időszak', 'Ez az időszak már foglalt ennél a szállásnál!');
+      return;
+    }
+
+    const totalPrice = this.calculateTotalPrice();
+    const nights = this.calculateNights();
+
+    const bookingData: Booking = {
+      userId: this.currentUser.id,
+      accommodationId: this.selectedAccommodation.id,
+      startDate: this.bookingForm.value.startDate,
+      endDate: this.bookingForm.value.endDate,
+      persons: this.bookingForm.value.persons,
+      totalPrice: totalPrice,
+      status: 1
+    };
+
+    this.isSavingBooking = true;
+
+    try {
+      // Mentés az adatbázisba
+      const response = await this.apiService.insert('bookings', bookingData);
+      
+      if (response && response.status === 200) {
+        
+        // Email küldése
+        try {
+          const emailData = {
+            template: 'booking-confirmation',
+            to: this.currentUser.email,
+            subject: 'Foglalás megerősítése - Szállásfoglaló',
+            data: {
+              userName: this.currentUser.name,
+              accommodationName: this.selectedAccommodation.name,
+              accommodationAddress: this.selectedAccommodation.address,
+              startDate: this.formatDate(this.bookingForm.value.startDate),
+              endDate: this.formatDate(this.bookingForm.value.endDate),
+              nights: nights,
+              persons: this.bookingForm.value.persons,
+              totalPrice: totalPrice.toLocaleString('hu-HU')
+            }
+          };
+
+          const emailResponse = await this.apiService.sendmail(emailData);
+          
+          if (emailResponse && emailResponse.status === 200) {
+            console.log('Email sikeresen elküldve');
+          } else {
+            console.warn('Email küldés sikertelen, de a foglalás mentve');
+          }
+        } catch (emailError) {
+          console.error('Email küldési hiba:', emailError);
+          // Ne szakítsuk meg a folyamatot, ha az email nem megy el
+        }
+
+        this.messageService.show(
+          'success',
+          'Sikeres szállásfoglalás!',
+          'Foglalását megtekintheti a profiljában. Megerősítő emailt küldtünk!'
+        );
+
+        await this.loadBookings();
+        this.closeBookingModal();
+        
+      } else {
+        this.messageService.show('danger', 'Hiba', response?.message || 'Hiba történt a foglalás során!');
+      }
+    } catch (error) {
+      this.messageService.show('danger', 'Hiba', 'Hiba történt a foglalás létrehozása során!');
+      console.error('💥 Booking error:', error);
+    } finally {
+      this.isSavingBooking = false;
+    }
   }
-}
 
+  private formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}. ${month}. ${day}.`;
+  }
 
-private formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}. ${month}. ${day}.`;
-}
+  // ===== LIGHTBOX METÓDUSOK =====
 
   openLightbox(images: string[], index: number): void {
     if (images.length === 0) return;
@@ -522,6 +711,8 @@ private formatDate(dateString: string): string {
       ? this.lightboxImages.length - 1 
       : this.currentImageIndex - 1;
   }
+
+  // ===== SEGÉD METÓDUSOK =====
 
   getMinStartDate(): string {
     const today = new Date();
@@ -562,7 +753,7 @@ private formatDate(dateString: string): string {
     this.cdr.detectChanges();
   }
 
-  // ÚJ: Foglalt dátumok listájának megjelenítése
+  // Foglalt dátumok listájának megjelenítése
   getBookedDatesDisplay(): string {
     if (this.bookedDates.length === 0) return 'Nincsenek foglalt dátumok';
     

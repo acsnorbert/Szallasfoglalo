@@ -171,7 +171,7 @@
         </div>
       </div>
 
-      <!-- ÚJ: Foglalt dátumok megjelenítése -->
+      <!-- Foglalt dátumok megjelenítése -->
       <div class="booked-dates-info" *ngIf="bookedDates.length > 0">
         <div class="alert alert-info">
           <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,33 +187,121 @@
 
       <hr class="divider">
 
-      <!-- Booking Form -->
+      <!-- Booking Form - EGYEDI NAPTÁRRAL -->
       <form [formGroup]="bookingForm" (ngSubmit)="saveBooking()">
         <div class="form-row">
+          <!-- Érkezés dátum -->
           <div class="form-group">
             <label>Érkezés *</label>
-            <input 
-              type="date" 
-              class="form-control" 
-              formControlName="startDate"
-              [min]="getMinStartDate()"
-              (change)="onDateChange()">
-            <!-- ÚJ: Figyelmeztetés ha foglalt dátumot választott -->
+            <div class="custom-date-picker">
+              <input 
+                type="text" 
+                class="form-control" 
+                [value]="formatDisplayDate(bookingForm.value.startDate)"
+                (click)="toggleCalendar('start')"
+                readonly
+                placeholder="Válassz dátumot">
+              
+              <!-- Egyedi naptár - Érkezés -->
+              <div class="calendar-dropdown" *ngIf="showStartCalendar">
+                <div class="calendar-header">
+                  <button type="button" class="calendar-nav" (click)="previousMonth('start')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                  </button>
+                  <span class="calendar-title">{{ getMonthYearDisplay('start') }}</span>
+                  <button type="button" class="calendar-nav" (click)="nextMonth('start')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div class="calendar-weekdays">
+                  <div class="weekday">H</div>
+                  <div class="weekday">K</div>
+                  <div class="weekday">Sze</div>
+                  <div class="weekday">Cs</div>
+                  <div class="weekday">P</div>
+                  <div class="weekday">Szo</div>
+                  <div class="weekday">V</div>
+                </div>
+                
+                <div class="calendar-days">
+                  <div 
+                    *ngFor="let day of getCalendarDays('start')"
+                    class="calendar-day"
+                    [class.other-month]="!day.isCurrentMonth"
+                    [class.today]="day.isToday"
+                    [class.selected]="day.isSelected"
+                    [class.booked]="day.isBooked"
+                    [class.disabled]="day.isDisabled"
+                    (click)="selectDate('start', day)">
+                    {{ day.day }}
+                  </div>
+                </div>
+              </div>
+            </div>
             <small class="form-hint error" 
                    *ngIf="bookingForm.value.startDate && isDateBooked(bookingForm.value.startDate, selectedAccommodation?.id || 0)">
               ⚠️ Ez a dátum már foglalt!
             </small>
           </div>
 
+          <!-- Távozás dátum -->
           <div class="form-group">
             <label>Távozás *</label>
-            <input 
-              type="date" 
-              class="form-control" 
-              formControlName="endDate"
-              [min]="getMinEndDate()"
-              (change)="onDateChange()">
-            <!-- ÚJ: Figyelmeztetés ha foglalt dátumot választott -->
+            <div class="custom-date-picker">
+              <input 
+                type="text" 
+                class="form-control" 
+                [value]="formatDisplayDate(bookingForm.value.endDate)"
+                (click)="toggleCalendar('end')"
+                readonly
+                placeholder="Válassz dátumot">
+              
+              <!-- Egyedi naptár - Távozás -->
+              <div class="calendar-dropdown" *ngIf="showEndCalendar">
+                <div class="calendar-header">
+                  <button type="button" class="calendar-nav" (click)="previousMonth('end')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                  </button>
+                  <span class="calendar-title">{{ getMonthYearDisplay('end') }}</span>
+                  <button type="button" class="calendar-nav" (click)="nextMonth('end')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div class="calendar-weekdays">
+                  <div class="weekday">H</div>
+                  <div class="weekday">K</div>
+                  <div class="weekday">Sze</div>
+                  <div class="weekday">Cs</div>
+                  <div class="weekday">P</div>
+                  <div class="weekday">Szo</div>
+                  <div class="weekday">V</div>
+                </div>
+                
+                <div class="calendar-days">
+                  <div 
+                    *ngFor="let day of getCalendarDays('end')"
+                    class="calendar-day"
+                    [class.other-month]="!day.isCurrentMonth"
+                    [class.today]="day.isToday"
+                    [class.selected]="day.isSelected"
+                    [class.booked]="day.isBooked"
+                    [class.disabled]="day.isDisabled"
+                    (click)="selectDate('end', day)">
+                    {{ day.day }}
+                  </div>
+                </div>
+              </div>
+            </div>
             <small class="form-hint error" 
                    *ngIf="bookingForm.value.endDate && isDateBooked(bookingForm.value.endDate, selectedAccommodation?.id || 0)">
               ⚠️ Ez a dátum már foglalt!
@@ -256,7 +344,7 @@
           </div>
         </div>
 
-        <!-- Availability Warning - FRISSÍTETT -->
+        <!-- Availability Warning -->
         <div class="warning-message" *ngIf="bookingForm.value.startDate && bookingForm.value.endDate && !isDateRangeAvailable()">
           <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -281,6 +369,7 @@
     </div>
   </div>
 </div>
+
 <!-- Lightbox -->
 <div class="lightbox-overlay" *ngIf="showLightbox" (click)="closeLightbox()">
   <button class="lightbox-close" (click)="closeLightbox()">
@@ -306,9 +395,3 @@
     </svg>
   </button>
 </div>
-
-
-
-
-
-

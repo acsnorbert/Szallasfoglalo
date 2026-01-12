@@ -37,81 +37,77 @@
   max-width: 1400px;
   margin: 0 auto;
 }
+
 .booked-dates-info {
-    margin: 15px 0;
-  }
+  margin: 15px 0;
+}
 
-  .alert {
-    padding: 12px 15px;
-    border-radius: 8px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
+.alert {
+  padding: 12px 15px;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
 
-  .alert-info {
-    background-color: #e3f2fd;
-    border: 1px solid #90caf9;
-    color: #1976d2;
-  }
+.alert-info {
+  background-color: #e3f2fd;
+  border: 1px solid #90caf9;
+  color: #1976d2;
+}
 
-  .alert-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
+.alert-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
 
-  .alert-content {
-    flex: 1;
-  }
+.alert-content {
+  flex: 1;
+}
 
-  .alert-content strong {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-  }
+.alert-content strong {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
 
-  .booked-dates-list {
-    margin: 5px 0 0 0;
-    font-size: 0.9em;
-    line-height: 1.6;
-  }
+.booked-dates-list {
+  margin: 5px 0 0 0;
+  font-size: 0.9em;
+  line-height: 1.6;
+}
 
-  /* Hibaüzenet foglalt dátumhoz */
-  .form-hint.error {
-    color: #d32f2f;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 5px;
-  }
+/* Hibaüzenet foglalt dátumhoz */
+.form-hint.error {
+  color: #d32f2f;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+}
 
-  /* Date input piros border ha foglalt */
-  input[type="date"].ng-touched.ng-invalid {
-    border-color: #d32f2f;
-  }
+/* Warning message stílus javítás */
+.warning-message {
+  background-color: #fff3e0;
+  border: 1px solid #ff9800;
+  color: #e65100;
+  padding: 12px 15px;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 15px 0;
+}
 
-  /* Warning message stílus javítás */
-  .warning-message {
-    background-color: #fff3e0;
-    border: 1px solid #ff9800;
-    color: #e65100;
-    padding: 12px 15px;
-    border-radius: 8px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin: 15px 0;
-  }
-
-  .warning-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-    color: #ff9800;
-  }
+.warning-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: #ff9800;
+}
 
 // Page Header
 .page-header {
@@ -315,8 +311,8 @@
 
 .btn-primary {
   background-color: #c9a961;
-    border-color: #fff9f0;
-    color: white;
+  border-color: #fff9f0;
+  color: white;
 
   &:hover:not(:disabled) {
     background: #9b8450;
@@ -398,25 +394,24 @@
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
-
   background: #ffffff !important;
   width: 800px;
-  height: 750px;
-  border-radius: 2%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
   opacity: 1 !important;
   visibility: visible !important;
   display: block !important;
-
+  animation: slideUp 0.3s ease;
 }
-
 
 @keyframes slideUp {
   from {
-    transform: translateY(20px);
+    transform: translate(-50%, -45%);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: translate(-50%, -50%);
     opacity: 1;
   }
 }
@@ -535,6 +530,189 @@
   }
 }
 
+// ===== EGYEDI NAPTÁR STÍLUSOK =====
+.custom-date-picker {
+  position: relative;
+  
+  .form-control {
+    cursor: pointer;
+    background-color: white;
+    padding-right: 2.5rem;
+    
+    &::after {
+      content: '📅';
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+  }
+}
+
+.calendar-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  z-index: 1000;
+  min-width: 320px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.calendar-title {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.calendar-nav {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+  }
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 0.5rem 0;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #1f2937;
+  font-weight: 500;
+  position: relative;
+
+  &:hover:not(.disabled):not(.booked) {
+    background: #f3f4f6;
+  }
+
+  &.other-month {
+    color: #d1d5db;
+  }
+
+  &.today {
+    font-weight: 700;
+    color: #3b82f6;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: #3b82f6;
+      border-radius: 50%;
+    }
+  }
+
+  &.selected {
+    background: #c9a961 !important;
+    color: white !important;
+    font-weight: 700;
+  }
+
+  &.booked {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    cursor: not-allowed;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(220, 38, 38, 0.1) 2px,
+        rgba(220, 38, 38, 0.1) 4px
+      );
+      border-radius: 8px;
+    }
+
+    &:hover {
+      background: #fecaca !important;
+    }
+  }
+
+  &.disabled {
+    color: #e5e7eb;
+    cursor: not-allowed;
+    
+    &:hover {
+      background: transparent;
+    }
+  }
+}
+
 // Price Summary
 .price-summary {
   background: #f0f9ff;
@@ -565,31 +743,6 @@
   font-size: 1.375rem;
 }
 
-// Warning Message
-.warning-message {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: #fef3c7;
-  border: 1px solid #fbbf24;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-
-  .warning-icon {
-    width: 24px;
-    height: 24px;
-    color: #d97706;
-    flex-shrink: 0;
-  }
-
-  span {
-    color: #92400e;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-}
-
 // Modal Actions
 .modal-actions {
   display: flex;
@@ -609,6 +762,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 3000;
   animation: fadeIn 0.2s;
 }
 
@@ -688,6 +842,7 @@
 @media (max-width: 768px) {
   .booking-container {
     padding: 1rem;
+    padding-top: 80px;
   }
 
   .accommodations-grid {
@@ -703,9 +858,15 @@
   }
 
   .modal {
+    width: 95%;
+    max-height: 95vh;
     margin: 0;
-    max-height: 100vh;
-    border-radius: 0;
+  }
+
+  .calendar-dropdown {
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 300px;
   }
 
   .lightbox-prev {
